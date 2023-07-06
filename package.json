@@ -1,7 +1,7 @@
 {
   "name": "fixed-laravel-echo-server",
   "version": "1.3.0",
-  "description": "Laravel Echo Node JS Server for Socket.io",
+  "description": "Fixed version of laravel-echo-server (update socket.io version)",
   "repository": {
     "type": "git",
     "url": "https://github.com/AbdoPrDZ/fixed-laravel-echo-server.git"
