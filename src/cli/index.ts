@@ -3,7 +3,7 @@ import { Cli } from './cli';
 let cli = new Cli();
 
 let yargs = require('yargs')
-    .usage("Usage: laravel-echo-server <command> [options]")
+    .usage("Usage: fixed-laravel-echo-server <command> [options]")
     .command("start",               "Starts the server.",                            yargs => cli.start(yargs))
     .command("stop",                "Stops the server.",                             yargs => cli.stop(yargs))
     .command(["configure", "init"], "Creates a custom config file.",                 yargs => cli.configure(yargs)) // Has an alias of "init" for backwards compatibility, remove in next version

@@ -9,4 +9,4 @@
  */
 var LaravelEchoServerCli = require('../dist/cli');
 
-process.title = 'laravel-echo-server';
+process.title = 'fixed-laravel-echo-server';
