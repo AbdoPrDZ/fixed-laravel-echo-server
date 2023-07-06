@@ -11,7 +11,7 @@
     "laravel",
     "socket.io"
   ],
-  "author": "Thiery Laverdure",
+  "author": "Abdo Pr",
   "license": "MIT",
   "jshintConfig": {
     "esversion": 6
