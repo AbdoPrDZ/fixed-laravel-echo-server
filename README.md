@@ -18,7 +18,7 @@ official docs: <https://laravel.com/docs/master/broadcasting>
 Install npm package globally with the following command:
 
 ``` shell
-$   npm install -g laravel-echo-server
+$   npm install "https://github.com/AbdoPrDZ/fixed-laravel-echo-server.git#main" --save
 ```
 
 ### Initialize with CLI Tool
@@ -26,7 +26,7 @@ $   npm install -g laravel-echo-server
 Run the init command in your project directory:
 
 ``` shell
-$   laravel-echo-server init
+$   fixed-laravel-echo-server init
 ```
 
 The cli tool will help you setup a **laravel-echo-server.json** file in the root directory of your project. This file will be loaded by the server during start up. You may edit this file later on to manage the configuration of your server.
@@ -36,7 +36,7 @@ The cli tool will help you setup a **laravel-echo-server.json** file in the root
 The Laravel Echo Server exposes a light http API to perform broadcasting functionality. For security purposes, access to these endpoints from http referrers must be authenticated with an APP id and key. This can be generated using the cli command:
 
 ``` shell
-$ laravel-echo-server client:add APP_ID
+$ fixed-laravel-echo-server client:add APP_ID
 ```
 
 If you run `client:add` without an app id argument, one will be generated for you. After running this command, the client id and key will be displayed and stored in the **laravel-echo-server.json** file.
@@ -53,14 +53,14 @@ or
 http://app.dev:6001/apps/APP_ID/channels?auth_key=skti68i...
 ```
 
-You can remove clients with `laravel-echo-server client:remove APP_ID`
+You can remove clients with `fixed-laravel-echo-server client:remove APP_ID`
 
 #### Run The Server
 
 in your project root directory, run
 
 ``` shell
-$ laravel-echo-server start
+$ fixed-laravel-echo-server start
 ```
 
 #### Stop The Server
@@ -68,7 +68,7 @@ $ laravel-echo-server start
 in your project root directory, run
 
 ``` shell
-$ laravel-echo-server stop
+$ fixed-laravel-echo-server stop
 ```
 
 ### Configurable Options
@@ -145,7 +145,7 @@ ProxyPassReverse /socket.io http://localhost:6001/socket.io
 ```
 
 ### Setting the working directory
-The working directory in which `laravel-echo-server` will look for the configuration file `laravel-echo-server.json` can be passed to the `start` command through the `--dir` parameter like so: `laravel-echo-server start --dir=/var/www/html/example.com/configuration`
+The working directory in which `laravel-echo-server` will look for the configuration file `laravel-echo-server.json` can be passed to the `start` command through the `--dir` parameter like so: `fixed-laravel-echo-server start --dir=/var/www/html/example.com/configuration`
 
 ## Subscribers
 The Laravel Echo Server subscribes to incoming events with two methods: Redis & Http.
