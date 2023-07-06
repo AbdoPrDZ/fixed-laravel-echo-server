@@ -6,8 +6,8 @@ NodeJs server for Laravel Echo broadcasting with Socket.io.
 
 The following are required to function properly.
 
-*   Laravel 5.3
-*   Node 6.0+
+*   Laravel 10x
+*   Node 18.0+
 *   Redis 3+
 
 Additional information on broadcasting with Laravel can be found on the
