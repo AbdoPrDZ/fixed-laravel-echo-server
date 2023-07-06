@@ -18,7 +18,7 @@ official docs: <https://laravel.com/docs/master/broadcasting>
 Install npm package globally with the following command:
 
 ``` shell
-$   npm install "https://github.com/AbdoPrDZ/fixed-laravel-echo-server.git#edit2" -g
+$   npm install fixed-laravel-echo-server -g
 ```
 
 ### Initialize with CLI Tool
