@@ -19,8 +19,6 @@ Install npm package globally with the following command:
 
 ``` shell
 $   npm install "https://github.com/AbdoPrDZ/fixed-laravel-echo-server.git#main" -g
-# or
-$   yarn add "https://github.com/AbdoPrDZ/fixed-laravel-echo-server.git#main" -g
 ```
 
 ### Initialize with CLI Tool
