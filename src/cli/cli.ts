@@ -80,7 +80,7 @@ export class Cli {
                         console.log(
                             "Configuration file saved. Run " +
                                 colors.magenta.bold(
-                                    "fixed-laravel-echo-server start" +
+                                    "laravel-echo-server start" +
                                         (file != "laravel-echo-server.json"
                                             ? ' --config="' + file + '"'
                                             : "")

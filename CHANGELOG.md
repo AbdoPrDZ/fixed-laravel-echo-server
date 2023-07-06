@@ -66,10 +66,3 @@ npm install -g laravel-echo-server
 ```
 
 -   In your `laravel-echo-server.json` file, remove the section named `referrers`. Then follow the [instructions](https://github.com/tlaverdure/laravel-echo-server#api-clients) to generate an app id and key. The `referrers` section has been replaced with `clients`.
-
-# Abdo Pr Part
- - This My Changes part
-
-# 1.3.0
-
- - Upgrade Socket.io Version to 4.7.1.

@@ -99,7 +99,7 @@ export class EchoServer {
      * Initialize the class
      */
     init(io: any): Promise<any> {
-        return new Promise<void>((resolve, reject) => {
+        return new Promise((resolve, reject) => {
             this.channel = new Channel(io, this.options);
 
             this.subscribers = [];
@@ -150,7 +150,7 @@ export class EchoServer {
      * Listen for incoming event from subscibers.
      */
     listen(): Promise<any> {
-        return new Promise<void>((resolve, reject) => {
+        return new Promise((resolve, reject) => {
             let subscribePromises = this.subscribers.map(subscriber => {
                 return subscriber.subscribe((channel, message) => {
                     return this.broadcast(channel, message);
