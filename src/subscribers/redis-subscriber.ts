@@ -35,7 +35,7 @@ export class RedisSubscriber implements Subscriber {
      */
     subscribe(callback): Promise<any> {
 
-        return new Promise((resolve, reject) => {
+        return new Promise<void>((resolve, reject) => {
             this._redis.on('pmessage', (subscribed, channel, message) => {
                 try {
                     message = JSON.parse(message);
@@ -71,7 +71,7 @@ export class RedisSubscriber implements Subscriber {
      * @return {Promise}
      */
     unsubscribe(): Promise<any> {
-        return new Promise((resolve, reject) => {
+        return new Promise<void>((resolve, reject) => {
             try {
                 this._redis.disconnect();
                 resolve();
