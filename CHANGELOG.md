@@ -73,3 +73,7 @@ npm install -g laravel-echo-server
 # 0.0.1
 
  - Upgrade Socket.io Version to 4.7.1.
+
+# 0.0.2
+
+ - Send private channel auth data by event ("channel_subscribe_success").

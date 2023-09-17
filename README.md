@@ -9,6 +9,7 @@ The following are required to function properly.
 *   Laravel 10x
 *   Node 18.0+
 *   Redis 3+
+*   Socket.IO 4+
 
 Additional information on broadcasting with Laravel can be found on the
 official docs: <https://laravel.com/docs/master/broadcasting>
@@ -18,7 +19,7 @@ official docs: <https://laravel.com/docs/master/broadcasting>
 Install npm package globally with the following command:
 
 ``` shell
-$   npm install fixed-laravel-echo-server -g
+$   npm install @abdopr/fixed-laravel-echo-server -g
 ```
 
 ### Initialize with CLI Tool
@@ -126,11 +127,11 @@ If you are struggling to get SSL implemented with this package, you could look a
 ```
 #the following would go within the server{} block of your web server config
 location /socket.io {
-	    proxy_pass http://laravel-echo-server:6001; #could be localhost if Echo and NginX are on the same box
-	    proxy_http_version 1.1;
-	    proxy_set_header Upgrade $http_upgrade;
-	    proxy_set_header Connection "Upgrade";
-	}
+  proxy_pass http://laravel-echo-server:6001; #could be localhost if Echo and NginX are on the same box
+  proxy_http_version 1.1;
+  proxy_set_header Upgrade $http_upgrade;
+  proxy_set_header Connection "Upgrade";
+}
 ```
 
 #### Sample Apache proxy config
@@ -282,25 +283,25 @@ For example, if you wanted to use redis-sentinel, you need to pass a custom conf
 
 ``` json
  "databaseConfig": {
-     "redis": {
-       "sentinels": [
-         {
-           "host": "redis-sentinel-0",
-           "port": 26379
-         },
-         {
-            "host": "redis-sentinel-1",
-            "port": 26379
-         }
-         {
-           "host": "redis-sentinel-2",
-           "port": 26379
-         }
-       ],
-       "name": "mymaster",
-       "sentinelPassword": "redis-password"
-     },
-   },
+    "redis": {
+      "sentinels": [
+        {
+          "host": "redis-sentinel-0",
+          "port": 26379
+        },
+        {
+          "host": "redis-sentinel-1",
+          "port": 26379
+        }
+        {
+          "host": "redis-sentinel-2",
+          "port": 26379
+        }
+      ],
+      "name": "mymaster",
+      "sentinelPassword": "redis-password"
+    },
+  },
  ``` 
 *For more information about redis sentinel configuration you can check [this](https://github.com/luin/ioredis#sentinel)*
 ### SQLite
