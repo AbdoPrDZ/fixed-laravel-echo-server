@@ -349,7 +349,7 @@ Optionally, you can configure laravel-echo-server to publish an event on each up
 You can use Laravel's Redis integration, to trigger Application code from there:
 ```php
 Redis::subscribe(['PresenceChannelUpdated'], function ($message) {
-    var_dump($message);
+  var_dump($message);
 });
 ```
 
