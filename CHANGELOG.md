@@ -83,3 +83,7 @@ npm install -g laravel-echo-server
   - Fix some bugs.
   - Change welcome message.
   - Add FirebaseAdmin service.
+
+# 0.0.4
+
+  - change default "laravel-echo-server.json" to "fixed-laravel-echo-server.json"

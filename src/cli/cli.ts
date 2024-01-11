@@ -48,7 +48,7 @@ export class Cli {
     yargs.option({
       config: {
         type: "string",
-        default: "laravel-echo-server.json",
+        default: "fixed-laravel-echo-server.json",
         describe: "The name of the config file to create."
       }
     });
@@ -581,7 +581,7 @@ export class Cli {
   getConfigFile(file: string = null, dir: string = null): string {
     const filePath = path.join(
       dir || "",
-      file || "laravel-echo-server.json"
+      file || "fixed-laravel-echo-server.json"
     );
 
     return path.isAbsolute(filePath)
