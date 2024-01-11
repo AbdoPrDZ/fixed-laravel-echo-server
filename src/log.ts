@@ -23,7 +23,7 @@ export class Log {
    * @return {void}
    */
   static title(message: any): void {
-    console.log(colors.bold(message));
+    console.log(colors.green.bold(message));
   }
 
   /**

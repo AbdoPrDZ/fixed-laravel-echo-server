@@ -75,13 +75,20 @@ export class Cli {
           options.apiOriginAllow.allowHeaders = options.allowHeaders;
         }
 
+        if (options.enableFirebaseAdminService) {
+          options.firebaseAdmin.enabled = true;
+          options.firebaseAdmin.configSource = options.firebaseAdminServiceConfigFile;
+          options.firebaseAdmin.databaseURL = options.firebaseAdminServiceDatabaseURL;
+          options.firebaseAdmin.channel = options.firebaseAdminServiceChannel;
+        }
+
         this.saveConfig(options).then(
           file => {
             console.log(
               "Configuration file saved. Run " +
                 colors.magenta.bold(
                   "fixed-laravel-echo-server start" +
-                    (file != "laravel-echo-server.json"
+                    (file != "fixed-laravel-echo-server.json"
                       ? ' --config="' + file + '"'
                       : "")
                 ) +
@@ -212,6 +219,36 @@ export class Cli {
         message: "Enter the HTTP headers that are allowed for CORS:",
         when: function(options) {
           return options.corsAllow == true;
+        }
+      },
+      {
+        name: 'enableFirebaseAdminService',
+        default: false,
+        message: "Do you want to enable firebase admin service?",
+        type: 'confirm',
+      },
+      {
+        name: 'firebaseAdminServiceConfigFile',
+        default: 'service-account.json',
+        message: "Enter firebase admin service config file location",
+        when: function(options) {
+          return options.enableFirebaseAdminService == true;
+        }
+      },
+      {
+        name: 'firebaseAdminServiceDatabaseURL',
+        message: "Enter firebase admin service database url (required)",
+        required: true,
+        when: function(options) {
+          return options.enableFirebaseAdminService == true;
+        }
+      },
+      {
+        name: 'firebaseAdminServiceChannel',
+        message: "Enter firebase admin service channel",
+        default: 'private-firebase_admin',
+        when: function(options) {
+          return options.enableFirebaseAdminService == true;
         }
       },
       {

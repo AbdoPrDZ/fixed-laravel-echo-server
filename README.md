@@ -94,6 +94,7 @@ Edit the default configuration of the server by adding options to your **laravel
 | `sslPassphrase`    | `''`                 | The pass phrase to use for the certificate (if applicable) |
 | `socketio`         | `{}`                 | Options to pass to the socket.io instance ([available options](https://github.com/socketio/engine.io#methods-1)) |
 | `subscribers`      | `{"http": true, "redis": true}` | Allows to disable subscribers individually. Available subscribers: `http` and `redis` |
+| `firebaseAdmin`    | `{"configSource": "service-account.json", "databaseURL": "--database-url--", "channel": "private-firebase_admin"}` | FirebaseAdmin Service options this used to push notifications to clients using firebaseAdmin service |
 
 ### DotEnv
 If a .env file is found in the same directory as the laravel-echo-server.json
@@ -353,6 +354,94 @@ Redis::subscribe(['PresenceChannelUpdated'], function ($message) {
 });
 ```
 
+### FirebaseAdmin Service (by AbdoPrDZ)
+
+We add FirebaseAdmin service to use it to push notifications to clients using firebaseAdmin, just you need to create a event and set his channel to 'private-firebase_admin' or what you choice in your config file to push your notifications, see the example.
+
+#### Notes
+
+ - You need "service-account.json" config file [see](https://stackoverflow.com/questions/40799258/where-can-i-get-serviceaccountcredentials-json-for-firebase-admin).
+ - You need to handle your notification in client side [see](https://firebase.flutter.dev/docs/messaging/overview)
+ - The channel you chosen for this service you can't use it
+
+#### Notification event example
+
+```php
+<?php
+
+namespace App\Events;
+
+use Illuminate\Broadcasting\Channel;
+use Illuminate\Broadcasting\InteractsWithSockets;
+use Illuminate\Broadcasting\PresenceChannel;
+use Illuminate\Broadcasting\PrivateChannel;
+use Illuminate\Contracts\Broadcasting\ShouldBroadcast;
+use Illuminate\Foundation\Events\Dispatchable;
+use Illuminate\Queue\SerializesModels;
+
+class NotificationEvent implements ShouldBroadcast
+{
+  use Dispatchable, InteractsWithSockets, SerializesModels;
+
+  private $tokens;
+  private $title;
+  private $body;
+  private $image;
+  private $data;
+
+  /**
+   * Create a new event instance.
+   */
+  public function __construct($tokens, $title, $body, $image = null, $data = [])
+  {
+    $this->tokens = $tokens;
+    $this->title = $title;
+    $this->body = $body;
+    $this->image = $image;
+    $this->data = $data;
+  }
+
+  /**
+   * The event's broadcast name.
+   *
+   * @return string
+   */
+  public function broadcastAs() {
+    return 'NotificationEvent';
+  }
+  
+  /**
+   * Get the channels the event should broadcast on.
+   *
+   * @return array<int, \Illuminate\Broadcasting\Channel>
+   */
+  public function broadcastOn(): array
+  {
+    return [
+      new PrivateChannel('notifications'),
+    ];
+  }
+  
+  /**
+   * The event's broadcast name.
+   *
+   * @return array
+   */
+  public function broadcastWith() {
+    $cast = [
+      'tokens' =>  $this->tokens,
+      'notification' => [
+        "title" => $this->title,
+        "body" => $this->body,
+      ],
+    ];
+    if ($this->image) $cast['notification']['image'] = $this->image;
+    if ($this->data) $cast['data'] = $this->data;
+
+    return $cast;
+  }
+}
+```
 
 ## Client Side Configuration
 
@@ -372,3 +461,4 @@ _Note: When using the socket.io client library from your running server, remembe
 #### µWebSockets deprecation
 
 µWebSockets has been [officially deprecated](https://www.npmjs.com/package/uws). Currently there is no support for µWebSockets in Socket.IO, but it may have the new [ClusterWS](https://www.npmjs.com/package/@clusterws/cws) support incoming. Meanwhile Laravel Echo Server will use [`ws` engine](https://www.npmjs.com/package/ws) by default until there is another option.
+

@@ -2,8 +2,10 @@ import { HttpSubscriber, RedisSubscriber, Subscriber } from './subscribers';
 import { Channel } from './channels';
 import { Server } from './server';
 import { HttpApi } from './api';
+import { FirebaseAdmin } from './firebase_admin';
 import { Log } from './log';
 import * as fs from 'fs';
+const path = require("path");
 const packageFile = require('../package.json');
 const { constants } = require('crypto');
 
@@ -44,6 +46,12 @@ export class EchoServer {
       allowOrigin: '',
       allowMethods: '',
       allowHeaders: ''
+    },
+    firebaseAdmin: {
+      enabled: false,
+      configSource: null,
+      databaseURL: null,
+      channel: 'private-firebase_admin',
     }
   };
 
@@ -71,6 +79,11 @@ export class EchoServer {
    * Http api instance.
    */
   private httpApi: HttpApi;
+
+  /**
+   * Firebase Admin instance.
+   */
+  private firebaseAdmin: FirebaseAdmin;
 
   /**
    * Create a new instance.
@@ -111,6 +124,28 @@ export class EchoServer {
       this.httpApi = new HttpApi(io, this.channel, this.server.express, this.options.apiOriginAllow);
       this.httpApi.init();
 
+      if (this.options.firebaseAdmin.enabled) {
+        if (!this.options.firebaseAdmin.configSource)
+           Log.error('Firebase admin service account file path is required\nPlease check your config json file');
+        else if (!fs.existsSync(this.options.firebaseAdmin.configSource))
+           Log.error(`Firebase admin service account file path not found ("${this.options.firebaseAdmin.configSource}")`)
+        else if (!this.options.firebaseAdmin.databaseURL) {
+          Log.error('Firebase admin databaseURL is required\nPlease check your config json file');
+        }
+        else {
+          try {
+            this.firebaseAdmin = new FirebaseAdmin(this.options);
+            this.firebaseAdmin.init();
+
+            Log.success('FirebaseAdmin service is running...')
+          } catch (error) {
+            Log.error('Cannot init Firebase Admin Service')
+            Log.error(error);
+          }
+        }
+      }
+
+
       this.onConnect();
       this.listen().then(() => resolve(), err => Log.error(err));
     });
@@ -120,7 +155,17 @@ export class EchoServer {
    * Text shown at startup.
    */
   startup(): void {
-    Log.title(`\nF I X E D  L A R A V E L  E C H O  S E R V E R\n`);
+    Log.title(`
+  ╔═══╗            ╔╗     ╔╗                        ╔╗      ╔═══╗    ╔╗           ╔═══╗
+  ║╔══╝            ║║     ║║                        ║║      ║╔══╝    ║║           ║╔═╗║
+  ║╚══╗╔╗╔╗╔╗╔══╗╔═╝║     ║║   ╔══╗ ╔═╗╔══╗ ╔╗╔╗╔══╗║║      ║╚══╗╔══╗║╚═╗╔══╗     ║╚══╗╔══╗╔═╗╔╗╔╗╔══╗╔═╗
+  ║╔══╝╠╣╚╬╬╝║╔╗║║╔╗║╔═══╗║║ ╔╗╚ ╗║ ║╔╝╚ ╗║ ║╚╝║║╔╗║║║ ╔═══╗║╔══╝║╔═╝║╔╗║║╔╗║╔═══╗╚══╗║║╔╗║║╔╝║╚╝║║╔╗║║╔╝
+ ╔╝╚╗  ║║╔╬╬╗║║═╣║╚╝║╚═══╝║╚═╝║║╚╝╚╗║║ ║╚╝╚╗╚╗╔╝║║═╣║╚╗╚═══╝║╚══╗║╚═╗║║║║║╚╝║╚═══╝║╚═╝║║║═╣║║ ╚╗╔╝║║═╣║║
+ ╚══╝  ╚╝╚╝╚╝╚══╝╚══╝     ╚═══╝╚═══╝╚╝ ╚═══╝ ╚╝ ╚══╝╚═╝     ╚═══╝╚══╝╚╝╚╝╚══╝     ╚═══╝╚══╝╚╝  ╚╝ ╚══╝╚╝
+----------------------------------------------------------------------------------------------------------
+|                                   Powered By AbdoPrDZ "Just Code It";                                  |
+----------------------------------------------------------------------------------------------------------
+`);
     Log.info(`version ${packageFile.version}\n`);
 
     if (this.options.devMode) {
@@ -147,12 +192,16 @@ export class EchoServer {
   }
 
   /**
-   * Listen for incoming event from subscibers.
+   * Listen for incoming event from subscribers.
    */
   listen(): Promise<any> {
     return new Promise((resolve, reject) => {
       let subscribePromises = this.subscribers.map(subscriber => {
         return subscriber.subscribe((channel, message) => {
+          if (this.firebaseAdmin) {
+            const firebaseChannel = this.options.firebaseAdmin.channel ?? 'private-firebase_channel'
+            if (channel == firebaseChannel) return this.firebaseAdmin.onServerEvent(message);
+          }
           return this.broadcast(channel, message);
         });
       });
@@ -216,6 +265,15 @@ export class EchoServer {
    */
   onSubscribe(socket: any): void {
     socket.on('subscribe', data => {
+      if (this.firebaseAdmin) {
+        const firebaseChannel = this.options.firebaseAdmin.channel ?? 'private-firebase_channel'
+        if (data.channel == firebaseChannel)
+          return socket.sockets.to(socket.id).emit(
+            'subscription_error',
+            data.channel,
+            'Invalid channel name'
+          );
+      }
       this.channel.join(socket, data);
     });
   }
