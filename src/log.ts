@@ -27,7 +27,7 @@ export class Log {
   }
 
   /**
-   * Console log heaing 2.
+   * Console log heading 2.
    *
    * @param  {string|object} message
    * @return {void}

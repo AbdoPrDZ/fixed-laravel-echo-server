@@ -87,3 +87,8 @@ npm install -g laravel-echo-server
 # 0.0.4
 
   - change default "laravel-echo-server.json" to "fixed-laravel-echo-server.json"
+  
+# 0.0.5
+
+  - Replace request package with axios.
+  - Upgrade some packages versions.

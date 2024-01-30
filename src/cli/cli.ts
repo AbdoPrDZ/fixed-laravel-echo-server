@@ -255,7 +255,7 @@ export class Cli {
         name: "file",
         default: defaultFile,
         message: "What do you want this config to be saved as?"
-      }
+      },
     ]);
   }
 
@@ -400,7 +400,7 @@ export class Cli {
           process.on("SIGHUP", () => process.exit());
           process.on("SIGTERM", () => process.exit());
 
-          echo.run(options);
+          echo.run(options, yargs);
         }
       );
     });
@@ -580,7 +580,7 @@ export class Cli {
    */
   getConfigFile(file: string = null, dir: string = null): string {
     const filePath = path.join(
-      dir || "",
+      dir || process.cwd(),
       file || "fixed-laravel-echo-server.json"
     );
 

@@ -5,6 +5,7 @@ import { HttpApi } from './api';
 import { FirebaseAdmin } from './firebase_admin';
 import { Log } from './log';
 import * as fs from 'fs';
+import { Database } from './database';
 const path = require("path");
 const packageFile = require('../package.json');
 const { constants } = require('crypto');
@@ -66,6 +67,11 @@ export class EchoServer {
   private server: Server;
 
   /**
+   * Database instance.
+   */
+  private db: Database;
+
+  /**
    * Channel instance.
    */
   private channel: Channel;
@@ -93,14 +99,14 @@ export class EchoServer {
   /**
    * Start the Echo Server.
    */
-  run(options: any): Promise<any> {
+  run(options: any, yargs: any): Promise<any> {
     return new Promise((resolve, reject) => {
       this.options = Object.assign(this.defaultOptions, options);
       this.startup();
       this.server = new Server(this.options);
 
       this.server.init().then(io => {
-        this.init(io).then(() => {
+        this.init(io, yargs).then(() => {
           Log.info('\nServer ready!\n');
           resolve(this);
         }, error => Log.error(error));
@@ -111,7 +117,7 @@ export class EchoServer {
   /**
    * Initialize the class
    */
-  init(io: any): Promise<any> {
+  init(io: any, yargs: any): Promise<any> {
     return new Promise((resolve, reject) => {
       this.channel = new Channel(io, this.options);
 
@@ -126,15 +132,18 @@ export class EchoServer {
 
       if (this.options.firebaseAdmin.enabled) {
         if (!this.options.firebaseAdmin.configSource)
-           Log.error('Firebase admin service account file path is required\nPlease check your config json file');
-        else if (!fs.existsSync(this.options.firebaseAdmin.configSource))
-           Log.error(`Firebase admin service account file path not found ("${this.options.firebaseAdmin.configSource}")`)
+          Log.error('Firebase admin service account file path is required\nPlease check your config json file');
+        else if (!fs.existsSync(path.join(
+          yargs.argv.dir,
+          this.options.firebaseAdmin.configSource
+        )))
+          Log.error(`Firebase admin service account file path not found ("${this.options.firebaseAdmin.configSource}")`)
         else if (!this.options.firebaseAdmin.databaseURL) {
           Log.error('Firebase admin databaseURL is required\nPlease check your config json file');
         }
         else {
           try {
-            this.firebaseAdmin = new FirebaseAdmin(this.options);
+            this.firebaseAdmin = new FirebaseAdmin(this.options, yargs);
             this.firebaseAdmin.init();
 
             Log.success('FirebaseAdmin service is running...')
@@ -145,9 +154,11 @@ export class EchoServer {
         }
       }
 
+      this.db = new Database(this.options);
+      this.db.set('connected_clients', {});
 
       this.onConnect();
-      this.listen().then(() => resolve(), err => Log.error(err));
+      this.listen().then(() => resolve(undefined), err => Log.error(err));
     });
   }
 
@@ -206,7 +217,7 @@ export class EchoServer {
         });
       });
 
-      Promise.all(subscribePromises).then(() => resolve());
+      Promise.all(subscribePromises).then(() => resolve(undefined));
     });
   }
 
@@ -252,7 +263,12 @@ export class EchoServer {
    * On server connection.
    */
   onConnect(): void {
-    this.server.io.on('connection', socket => {
+    this.server.io.on('connection', async socket => {
+      // var clients = await this.db.get("connected_clients") || {};
+      // clients[socket.id] = 'connected';
+      // this.db.set("connected_clients", clients);
+      // Log.info(clients);
+
       this.onSubscribe(socket);
       this.onUnsubscribe(socket);
       this.onDisconnecting(socket);
@@ -292,8 +308,13 @@ export class EchoServer {
    */
   onDisconnecting(socket: any): void {
     socket.on('disconnecting', (reason) => {
-      Object.keys(socket.rooms).forEach(room => {
+      Object.keys(socket.rooms).forEach(async room => {
         if (room !== socket.id) {
+          // var clients = await this.db.get("connected_clients") || {};
+          // clients[socket.id] = 'disconnected';
+          // this.db.set("connected_clients", clients);
+          // Log.info(clients);
+
           this.channel.leave(socket, room, reason);
         }
       });

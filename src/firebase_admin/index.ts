@@ -10,9 +10,9 @@ export class FirebaseAdmin {
    * FirebaseAdmin - create FirebaseAdmin instance
    * @param options the laravel echo options
    */
-  constructor(private options) {
+  constructor(private options, yargs) {
     this.serviceAccount = require(path.join(
-      process.cwd(),
+      yargs.argv.dir || process.cwd(),
       this.options.firebaseAdmin.configSource,
     ));
   }
