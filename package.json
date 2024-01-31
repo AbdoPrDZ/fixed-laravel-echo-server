@@ -1,6 +1,6 @@
 {
   "name": "@abdopr/fixed-laravel-echo-server",
-  "version": "0.0.5-beta+1",
+  "version": "0.0.6-beta",
   "description": "Fixed version of laravel-echo-server (update socket.io version, with other features)",
   "repository": {
     "type": "git",

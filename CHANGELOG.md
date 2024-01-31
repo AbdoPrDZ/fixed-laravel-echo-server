@@ -93,6 +93,6 @@ npm install -g laravel-echo-server
   - Replace request package with axios.
   - Upgrade some packages versions.
 
-# 0.0.5-beta+1
+# 0.0.6-beta
 
   - Fix firebase admin config file error.
