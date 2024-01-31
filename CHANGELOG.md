@@ -87,8 +87,12 @@ npm install -g laravel-echo-server
 # 0.0.4
 
   - change default "laravel-echo-server.json" to "fixed-laravel-echo-server.json"
-  
-# 0.0.5
+
+# 0.0.5-beta
 
   - Replace request package with axios.
   - Upgrade some packages versions.
+
+# 0.0.5-beta+1
+
+  - Fix firebase admin config file error.

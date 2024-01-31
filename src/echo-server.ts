@@ -134,7 +134,7 @@ export class EchoServer {
         if (!this.options.firebaseAdmin.configSource)
           Log.error('Firebase admin service account file path is required\nPlease check your config json file');
         else if (!fs.existsSync(path.join(
-          yargs.argv.dir,
+          yargs.argv.dir || process.cwd(),
           this.options.firebaseAdmin.configSource
         )))
           Log.error(`Firebase admin service account file path not found ("${this.options.firebaseAdmin.configSource}")`)
