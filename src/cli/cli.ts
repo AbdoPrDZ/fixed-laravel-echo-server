@@ -112,7 +112,7 @@ export class Cli {
   resolveEnvFileOptions(options: any): any {
     require("dotenv").config();
 
-    for (let key in this.envVariables) {
+    for (const key in this.envVariables) {
       let value = (process.env[key] || "").toString();
       let replacementVar;
 
@@ -124,9 +124,8 @@ export class Cli {
           modifier = modifier[path.shift()];
         }
 
-        if ((replacementVar = value.match(/\${(.*?)}/))) {
+        if ((replacementVar = value.match(/\${(.*?)}/)))
           value = (process.env[replacementVar[1]] || "").toString();
-        }
 
         modifier[path.shift()] = value;
       }
@@ -162,6 +161,34 @@ export class Cli {
         name: "authHost",
         default: "http://localhost",
         message: "Enter the host of your Laravel authentication server."
+      },
+      {
+        name: "addClientConnectEndpoint",
+        default: false,
+        message: "Do you want to add client connect endpoint",
+        type: "confirm",
+      },
+      {
+        name: "clientConnectEndpoint",
+        default: "/broadcasting/client_connect",
+        message: "Enter your client connect endpoint",
+        when: function(option) {
+          return option.addClientConnectEndpoint;
+        }
+      },
+      {
+        name: "addClientDisconnectEndpoint",
+        default: false,
+        message: "Do you want to add client disconnect endpoint",
+        type: "confirm",
+      },
+      {
+        name: "clientDisconnectEndpoint",
+        default: "/broadcasting/client_disconnect",
+        message: "Enter your client disconnect endpoint",
+        when: function(option) {
+          return option.addClientDisconnectEndpoint;
+        }
       },
       {
         name: "protocol",
@@ -272,15 +299,14 @@ export class Cli {
       .forEach(option => (opts[option] = options[option]));
 
     return new Promise((resolve, reject) => {
-      if (opts) {
+      if (opts)
         fs.writeFile(
           this.getConfigFile(options.file),
           JSON.stringify(opts, null, "\t"),
           error => (error ? reject(error) : resolve(options.file))
         );
-      } else {
+      else
         reject("No options provided.");
-      }
     });
   }
 
@@ -349,32 +375,30 @@ export class Cli {
           );
         }
 
-        if (lockProcess) {
-          try {
-            process.kill(lockProcess, 0);
+        if (lockProcess) try {
+          process.kill(lockProcess, 0);
 
-            if (yargs.argv.force) {
-              process.kill(lockProcess);
+          if (yargs.argv.force) {
+            process.kill(lockProcess);
 
-              console.log(
-                colors.yellow(
-                  "Warning: Closing process " +
-                    lockProcess +
-                    " because you used the '--force' option."
-                )
-              );
-            } else {
-              console.error(
-                colors.error(
-                  "Error: There is already a server running! Use the option '--force' to stop it and start another one."
-                )
-              );
+            console.log(
+              colors.yellow(
+                "Warning: Closing process " +
+                  lockProcess +
+                  " because you used the '--force' option."
+              )
+            );
+          } else {
+            console.error(
+              colors.error(
+                "Error: There is already a server running! Use the option '--force' to stop it and start another one."
+              )
+            );
 
-              return false;
-            }
-          } catch {
-            // The process in the lock file doesn't exist, so continue
+            return false;
           }
+        } catch {
+          // The process in the lock file doesn't exist, so continue
         }
       }
 
@@ -446,21 +470,18 @@ export class Cli {
         );
       }
 
-      if (lockProcess) {
-        try {
-          fs.unlinkSync(lockFile);
+      if (lockProcess) try {
+        fs.unlinkSync(lockFile);
 
-          process.kill(lockProcess);
+        process.kill(lockProcess);
 
-          console.log(colors.green("Closed the running server."));
-        } catch (e) {
-          console.error(e);
-          console.log(colors.error("No running servers to close."));
-        }
+        console.log(colors.green("Closed the running server."));
+      } catch (e) {
+        console.error(e);
+        console.log(colors.error("No running servers to close."));
       }
-    } else {
+    } else
       console.log(colors.error("Error: Could not find any lock file."));
-    }
   }
 
   /**
@@ -566,9 +587,8 @@ export class Cli {
       return client.appId == appId;
     });
 
-    if (index >= 0) {
+    if (index >= 0)
       options.clients.splice(index, 1);
-    }
 
     console.log(colors.green("Client removed: " + appId));
 

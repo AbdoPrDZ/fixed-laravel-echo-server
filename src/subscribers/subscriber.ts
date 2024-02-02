@@ -1,4 +1,5 @@
 export interface Subscriber {
+
   /**
    * Subscribe to incoming events.
    *

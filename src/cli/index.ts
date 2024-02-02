@@ -1,8 +1,8 @@
 import { Cli } from './cli';
 
-let cli = new Cli();
+const cli = new Cli();
 
-let yargs = require('yargs')
+const yargs = require('yargs')
   .usage("Usage: fixed-laravel-echo-server <command> [options]")
   .command("start",               "Starts the server.",                            yargs => cli.start(yargs))
   .command("stop",                "Stops the server.",                             yargs => cli.stop(yargs))
@@ -15,4 +15,4 @@ let yargs = require('yargs')
 
 yargs.$0 = '';
 
-var argv = yargs.argv;
+const argv = yargs.argv;

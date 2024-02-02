@@ -30,7 +30,7 @@ Run the init command in your project directory:
 $   fixed-laravel-echo-server init
 ```
 
-The cli tool will help you setup a **laravel-echo-server.json** file in the root directory of your project. This file will be loaded by the server during start up. You may edit this file later on to manage the configuration of your server.
+The cli tool will help you setup a **fixed-laravel-echo-server.json** file in the root directory of your project. This file will be loaded by the server during start up. You may edit this file later on to manage the configuration of your server.
 
 #### API Clients
 
@@ -40,7 +40,7 @@ The Laravel Echo Server exposes a light http API to perform broadcasting functio
 $ fixed-laravel-echo-server client:add APP_ID
 ```
 
-If you run `client:add` without an app id argument, one will be generated for you. After running this command, the client id and key will be displayed and stored in the **laravel-echo-server.json** file.
+If you run `client:add` without an app id argument, one will be generated for you. After running this command, the client id and key will be displayed and stored in the **fixed-laravel-echo-server.json** file.
 
 In this example, requests will be allowed as long as the app id and key are both provided with http requests.
 
@@ -74,30 +74,32 @@ $ fixed-laravel-echo-server stop
 
 ### Configurable Options
 
-Edit the default configuration of the server by adding options to your **laravel-echo-server.json** file.
+Edit the default configuration of the server by adding options to your **fixed-laravel-echo-server.json** file.
 
 
-| Title              | Default              | Description                 |
-| :------------------| :------------------- | :---------------------------|
-| `apiOriginAllow`   | `{}`                 | Configuration to allow API be accessed over CORS. [Example](#cross-domain-access-to-api) |
-| `authEndpoint`     | `/broadcasting/auth` | The route that authenticates private channels  |
-| `authHost`         | `http://localhost`   | The host of the server that authenticates private and presence channels  |
-| `database`         | `redis`              | Database used to store data that should persist, like presence channel members. Options are currently `redis` and `sqlite` |
-| `databaseConfig`   |  `{}`                | Configurations for the different database drivers [Example](#database) |
-| `devMode`          | `false`              | Adds additional logging for development purposes |
-| `host`             | `null`               | The host of the socket.io server ex.`app.dev`. `null` will accept connections on any IP-address |
-| `port`             | `6001`               | The port that the socket.io server should run on |
-| `protocol`         | `http`               | Must be either `http` or `https` |
-| `sslCertPath`      | `''`                 | The path to your server's ssl certificate |
-| `sslKeyPath`       | `''`                 | The path to your server's ssl key |
-| `sslCertChainPath` | `''`                 | The path to your server's ssl certificate chain |
-| `sslPassphrase`    | `''`                 | The pass phrase to use for the certificate (if applicable) |
-| `socketio`         | `{}`                 | Options to pass to the socket.io instance ([available options](https://github.com/socketio/engine.io#methods-1)) |
-| `subscribers`      | `{"http": true, "redis": true}` | Allows to disable subscribers individually. Available subscribers: `http` and `redis` |
-| `firebaseAdmin`    | `{"configSource": "service-account.json", "databaseURL": "--database-url--", "channel": "private-firebase_admin"}` | FirebaseAdmin Service options this used to push notifications to clients using firebaseAdmin service |
+| Title                   | Default              | Description                 |
+| :---------------------- | :-------------------------------- | :---------------------------|
+| `apiOriginAllow`        | `{}`                              | Configuration to allow API be accessed over CORS. [Example](#cross-domain-access-to-api) |
+| `authEndpoint`          | `/broadcasting/auth`              | The route that authenticates private channels  |
+| `clientConnectEndpoint` | `/broadcasting/client_connect`    | The route for every client connected  |
+| `authEndpoint`          | `/broadcasting/client_disconnect` | The route for every client disconnected |
+| `authHost`              | `http://localhost`                | The host of the server that authenticates private and presence channels  |
+| `database`              | `redis`                           | Database used to store data that should persist, like presence channel members. Options are currently `redis` and `sqlite` |
+| `databaseConfig`        |  `{}`                             | Configurations for the different database drivers [Example](#database) |
+| `devMode`               | `false`                           | Adds additional logging for development purposes |
+| `host`                  | `null`                            | The host of the socket.io server ex.`app.dev`. `null` will accept connections on any IP-address |
+| `port`                  | `6001`                            | The port that the socket.io server should run on |
+| `protocol`              | `http`                            | Must be either `http` or `https` |
+| `sslCertPath`           | `''`                              | The path to your server's ssl certificate |
+| `sslKeyPath`            | `''`                              | The path to your server's ssl key |
+| `sslCertChainPath`      | `''`                              | The path to your server's ssl certificate chain |
+| `sslPassphrase`         | `''`                              | The pass phrase to use for the certificate (if applicable) |
+| `socketio`              | `{}`                              | Options to pass to the socket.io instance ([available options](https://github.com/socketio/engine.io#methods-1)) |
+| `subscribers`           | `{"http": true, "redis": true}`   | Allows to disable subscribers individually. Available subscribers: `http` and `redis` |
+| `firebaseAdmin`         | `{"configSource": "service-account.json", "databaseURL": "--database-url--", "channel": "private-firebase_admin"}` | FirebaseAdmin Service options this used to push notifications to clients using firebaseAdmin service |
 
 ### DotEnv
-If a .env file is found in the same directory as the laravel-echo-server.json
+If a .env file is found in the same directory as the fixed-laravel-echo-server.json
 file, the following options can be overridden:
 
 - `authHost`: `LARAVEL_ECHO_SERVER_AUTH_HOST` *Note*: This option will fall back to the `LARAVEL_ECHO_SERVER_HOST` option as the default if that is set in the .env file.
@@ -128,7 +130,7 @@ If you are struggling to get SSL implemented with this package, you could look a
 ```
 #the following would go within the server{} block of your web server config
 location /socket.io {
-  proxy_pass http://laravel-echo-server:6001; #could be localhost if Echo and NginX are on the same box
+  proxy_pass http://fixed-laravel-echo-server:6001; #could be localhost if Echo and NginX are on the same box
   proxy_http_version 1.1;
   proxy_set_header Upgrade $http_upgrade;
   proxy_set_header Connection "Upgrade";
@@ -147,7 +149,7 @@ ProxyPassReverse /socket.io http://localhost:6001/socket.io
 ```
 
 ### Setting the working directory
-The working directory in which `laravel-echo-server` will look for the configuration file `laravel-echo-server.json` can be passed to the `start` command through the `--dir` parameter like so: `fixed-laravel-echo-server start --dir=/var/www/html/example.com/configuration`
+The working directory in which `fixed-laravel-echo-server` will look for the configuration file `fixed-laravel-echo-server.json` can be passed to the `start` command through the `--dir` parameter like so: `fixed-laravel-echo-server start --dir=/var/www/html/example.com/configuration`
 
 ## Subscribers
 The Laravel Echo Server subscribes to incoming events with two methods: Redis & Http.
@@ -236,7 +238,7 @@ GET /apps/:APP_ID/channels/:CHANNEL_NAME/users
 ```
 
 ## Cross Domain Access To API
-Cross domain access can be specified in the laravel-echo-server.json file by changing `allowCors` in `apiOriginAllow` to `true`. You can then set the CORS Access-Control-Allow-Origin, Access-Control-Allow-Methods as a comma separated string (GET and POST are enabled by default) and the Access-Control-Allow-Headers that the API can receive.
+Cross domain access can be specified in the fixed-laravel-echo-server.json file by changing `allowCors` in `apiOriginAllow` to `true`. You can then set the CORS Access-Control-Allow-Origin, Access-Control-Allow-Methods as a comma separated string (GET and POST are enabled by default) and the Access-Control-Allow-Headers that the API can receive.
 
 Example below:
 
@@ -257,7 +259,7 @@ This allows you to send requests to the API via AJAX from an app that may be run
 
 To persist presence channel data, there is support for use of Redis or SQLite as a key/value store. The key being the channel name, and the value being the list of presence channel members.
 
-Each database driver may be configured in the **laravel-echo-server.json** file under the `databaseConfig` property. The options get passed through to the database provider, so developers are free to set these up as they wish.
+Each database driver may be configured in the **fixed-laravel-echo-server.json** file under the `databaseConfig` property. The options get passed through to the database provider, so developers are free to set these up as they wish.
 
 ### Redis
 For example, if you wanted to pass a custom configuration to Redis:
@@ -313,7 +315,7 @@ With SQLite you may be interested in changing the path where the database is sto
 {
   "databaseConfig" : {
     "sqlite" : {
-      "databasePath": "/path/to/laravel-echo-server.sqlite"
+      "databasePath": "/path/to/fixed-laravel-echo-server.sqlite"
     }
   }
 }
@@ -333,7 +335,7 @@ When users join a presence channel, their presence channel authentication data i
 
 While presence channels contain a list of users, there will be instances where a user joins a presence channel multiple times. For example, this would occur when opening multiple browser tabs. In this situation "joining" and "leaving" events are only emitted to the first and last instance of the user.
 
-Optionally, you can configure laravel-echo-server to publish an event on each update to a presence channel, by setting `databaseConfig.publishPresence` to `true`:
+Optionally, you can configure fixed-laravel-echo-server to publish an event on each update to a presence channel, by setting `databaseConfig.publishPresence` to `true`:
 
 ```json
 {
@@ -354,17 +356,26 @@ Redis::subscribe(['PresenceChannelUpdated'], function ($message) {
 });
 ```
 
-### FirebaseAdmin Service (by AbdoPrDZ)
+## FirebaseAdmin Service (by AbdoPrDZ)
 
 We add FirebaseAdmin service to use it to push notifications to clients using firebaseAdmin, just you need to create a event and set his channel to 'private-firebase_admin' or what you choice in your config file to push your notifications, see the example.
 
-#### Notes
+```json
+{
+  "enabled": false,
+  "configSource": null,
+  "databaseURL": null,
+  "channel": "private-firebase_admin",
+}
+```
+
+### Notes
 
  - You need "service-account.json" config file [see](https://stackoverflow.com/questions/40799258/where-can-i-get-serviceaccountcredentials-json-for-firebase-admin).
  - You need to handle your notification in client side [see](https://firebase.flutter.dev/docs/messaging/overview)
  - The channel you chosen for this service you can't use it
 
-#### Notification event example
+### Notification event example
 
 ```php
 <?php

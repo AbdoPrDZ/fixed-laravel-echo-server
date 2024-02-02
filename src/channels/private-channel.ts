@@ -1,5 +1,4 @@
-let url = require('url');
-import { Channel } from './channel';
+const url = require('url');
 import { Log } from './../log';
 import axios from 'axios';
 
@@ -20,16 +19,15 @@ export class PrivateChannel {
    * Send authentication request to application server.
    */
   authenticate(socket: any, data: any): Promise<any> {
-    let options = {
+    const options = {
       url: this.authHost(socket) + this.options.authEndpoint,
-      form: { channel_name: data.channel },
+      form: { socket_id: socket.id, channel_name: data.channel },
       headers: (data.auth && data.auth.headers) ? data.auth.headers : {},
       rejectUnauthorized: false
     };
 
-    if (this.options.devMode) {
-      Log.info(`[${new Date().toISOString()}] - Sending auth request to: ${options.url}\n`);
-    }
+    if (this.options.devMode)
+      Log.info(`Sending auth request to: ${options.url}\n`, true);
 
     return this.serverRequest(socket, options);
   }
@@ -41,16 +39,15 @@ export class PrivateChannel {
     let authHosts = (this.options.authHost) ?
       this.options.authHost : this.options.host;
 
-    if (typeof authHosts === "string") {
+    if (typeof authHosts === "string")
       authHosts = [authHosts];
-    }
 
     let authHostSelected = authHosts[0] || 'http://localhost';
 
     if (socket.request.headers.referer) {
-      let referer = url.parse(socket.request.headers.referer);
+      const referer = url.parse(socket.request.headers.referer);
 
-      for (let authHost of authHosts) {
+      for (const authHost of authHosts) {
         authHostSelected = authHost;
 
         if (this.hasMatchingHost(referer, authHost)) {
@@ -60,9 +57,8 @@ export class PrivateChannel {
       };
     }
 
-    if (this.options.devMode) {
-      Log.error(`[${new Date().toISOString()}] - Preparing authentication request to: ${authHostSelected}`);
-    }
+    if (this.options.devMode)
+      Log.error(`Preparing authentication request to: ${authHostSelected}`, true);
 
     return authHostSelected;
   }
@@ -89,15 +85,14 @@ export class PrivateChannel {
       }).then((response) => {
         if (response.status !== 200) {
           if (this.options.devMode) {
-            Log.warning(`[${new Date().toISOString()}] - ${socket.id} could not be authenticated to ${options.form.channel_name}`);
+            Log.warning(`${socket.id} could not be authenticated to ${options.form.channel_name}`, true);
             Log.error(response.data);
           }
 
           reject({ reason: 'Client can not be authenticated, got HTTP status ' + response.status, status: response.status });
         } else {
-          if (this.options.devMode) {
-            Log.info(`[${new Date().toISOString()}] - ${socket.id} authenticated for: ${options.form.channel_name}`);
-          }
+          if (this.options.devMode)
+            Log.info(`${socket.id} authenticated for: ${options.form.channel_name}`, true);
 
           try {
             body = JSON.parse(response.data);
@@ -109,7 +104,7 @@ export class PrivateChannel {
         }
       }).catch((error) => {
         if (this.options.devMode) {
-          Log.error(`[${new Date().toISOString()}] - Error authenticating ${socket.id} for ${options.form.channel_name}`);
+          Log.error(`Error authenticating ${socket.id} for ${options.form.channel_name}`, true);
           Log.error(error);
         }
 

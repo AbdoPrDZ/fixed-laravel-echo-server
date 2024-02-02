@@ -1,6 +1,6 @@
-var echo = require('../dist/index.js');
+const echo = require('../dist/index.js');
 
-var options = {
+const options = {
   host: 'http://example.dev',
 };
 

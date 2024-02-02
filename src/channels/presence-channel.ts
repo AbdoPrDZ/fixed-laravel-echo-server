@@ -1,6 +1,6 @@
 import { Database } from './../database';
 import { Log } from './../log';
-var _ = require("lodash");
+const _ = require("lodash");
 
 export class PresenceChannel {
   /**
@@ -31,13 +31,12 @@ export class PresenceChannel {
         (members) => {
           this.removeInactive(channel, members, member).then(
             (members: any) => {
-              let search = members.filter(
-                (m) => m.user_id == member.user_id
+              const search = members.filter(
+                (m: { user_id: any; }) => m.user_id == member.user_id
               );
 
-              if (search && search.length) {
+              if (search && search.length)
                 resolve(true);
-              }
 
               resolve(false);
             }
@@ -75,11 +74,10 @@ export class PresenceChannel {
    */
   join(socket: any, channel: string, member: any) {
     if (!member) {
-      if (this.options.devMode) {
+      if (this.options.devMode)
         Log.error(
           "Unable to join channel. Member data for presence channel missing"
         );
-      }
 
       return;
     }
@@ -119,8 +117,8 @@ export class PresenceChannel {
     this.getMembers(channel).then(
       (members) => {
         members = members || [];
-        let member = members.find(
-          (member) => member.socketId == socket.id
+        const member = members.find(
+          (member: { socketId: any; }) => member.socketId == socket.id
         );
         members = members.filter((m) => m.socketId != member.socketId);
 

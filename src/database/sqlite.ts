@@ -16,7 +16,7 @@ export class SQLiteDatabase implements DatabaseDriver {
   constructor(private options) {
     if (!sqlite3) return;
 
-    let path = process.cwd() + options.databaseConfig.sqlite.databasePath;
+    const path = process.cwd() + options.databaseConfig.sqlite.databasePath;
     this._sqlite = new sqlite3.cached.Database(path);
     this._sqlite.serialize(() => {
       this._sqlite.run('CREATE TABLE IF NOT EXISTS key_value (key VARCHAR(255), value TEXT)');
@@ -32,13 +32,9 @@ export class SQLiteDatabase implements DatabaseDriver {
       this._sqlite.get("SELECT value FROM key_value WHERE key = $key", {
         $key: key,
       }, (error, row) => {
-        if (error) {
-          reject(error);
-        }
+        if (error) reject(error);
 
-        let result = row ? JSON.parse(row.value) : null;
-
-        resolve(result);
+        resolve(row ? JSON.parse(row.value) : null);
       });
     });
   }

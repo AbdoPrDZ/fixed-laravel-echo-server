@@ -1,4 +1,4 @@
-var colors = require('colors');
+const colors = require('colors');
 
 colors.setTheme({
   silly: 'rainbow',
@@ -42,8 +42,11 @@ export class Log {
    * @param  {string|object} message
    * @return {void}
    */
-  static info(message: any): void {
-    console.log(colors.info(message));
+  static info(message: any, logTime = false): void {
+    if (logTime)
+      console.log(colors.info(`[${new Date().toISOString()}] - ${message}`));
+    else
+      console.log(colors.info(message));
   }
 
   /**
@@ -52,8 +55,11 @@ export class Log {
    * @param  {string|object} message
    * @return {void}
    */
-  static success(message: any): void {
-    console.log(colors.green('\u2714 '), message);
+  static success(message: any, logTime = false): void {
+    if (logTime)
+      console.log(`[${new Date().toISOString()}] - ${colors.green('\u2714 ')} ${message}`);
+    else
+      console.log(colors.green('\u2714 '), message);
   }
 
   /**
@@ -64,8 +70,11 @@ export class Log {
    * @param  {string|object} message
    * @return {void}
    */
-  static error(message: any): void {
-    console.log(colors.error(message));
+  static error(message: any, logTime = false): void {
+    if (logTime)
+      console.log(colors.error(`[${new Date().toISOString()}] - ${message}`));
+    else
+      console.log(colors.error(message));
   }
 
   /**
@@ -74,7 +83,10 @@ export class Log {
    * @param  {string|object} message
    * @return {void}
    */
-  static warning(message: any): void {
-    console.log(colors.warn('\u26A0 ' + message));
+  static warning(message: any, logTime = false): void {
+    if (logTime)
+      console.log(colors.warn(`[${new Date().toISOString()}] - \u26A0 ${message}`));
+    else
+      console.log(colors.warn('\u26A0 ' + message));
   }
 }

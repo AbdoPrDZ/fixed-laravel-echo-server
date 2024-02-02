@@ -1,4 +1,4 @@
-var Redis = require('ioredis');
+import Redis from 'ioredis';
 import { Log } from './../log';
 import { Subscriber } from './subscriber';
 
@@ -6,9 +6,9 @@ export class RedisSubscriber implements Subscriber {
   /**
    * Redis pub/sub client.
    *
-   * @type {object}
+   * @type {Redis}
    */
-  private _redis: any;
+  private _redis: Redis;
 
   /**
    *
@@ -34,11 +34,10 @@ export class RedisSubscriber implements Subscriber {
    * @return {Promise<any>}
    */
   subscribe(callback): Promise<any> {
-
     return new Promise((resolve, reject) => {
-      this._redis.on('pmessage', (subscribed, channel, message) => {
+      this._redis.on('pmessage', (subscribed, channel, _message) => {
         try {
-          message = JSON.parse(message);
+          const message = JSON.parse(_message);
 
           if (this.options.devMode) {
             Log.info("Channel: " + channel);
@@ -47,17 +46,12 @@ export class RedisSubscriber implements Subscriber {
 
           callback(channel.substring(this._keyPrefix.length), message);
         } catch (e) {
-          if (this.options.devMode) {
-            // Log.info("No JSON message");
-            Log.error(e);
-          }
+          if (this.options.devMode) Log.error(e);
         }
       });
 
       this._redis.psubscribe(`${this._keyPrefix}*`, (err, count) => {
-        if (err) {
-          reject('Redis could not subscribe.')
-        }
+        if (err) reject('Redis could not subscribe.');
 
         Log.success('Listening for redis events...');
 

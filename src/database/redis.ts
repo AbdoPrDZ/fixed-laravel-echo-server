@@ -1,11 +1,11 @@
 import { DatabaseDriver } from './database-driver';
-var Redis = require('ioredis');
+import Redis from 'ioredis';
 
 export class RedisDatabase implements DatabaseDriver {
   /**
    * Redis client.
    */
-  private _redis: any;
+  private _redis: Redis;
 
   /**
    * Create a new cache instance.
@@ -28,13 +28,12 @@ export class RedisDatabase implements DatabaseDriver {
    */
   set(key: string, value: any): void {
     this._redis.set(key, JSON.stringify(value));
-    if (this.options.databaseConfig.publishPresence === true && /^presence-.*:members$/.test(key)) {
+    if (this.options.databaseConfig.publishPresence === true && /^presence-.*:members$/.test(key))
       this._redis.publish('PresenceChannelUpdated', JSON.stringify({
         "event": {
           "channel": key,
           "members": value
         }
       }));
-    }
   }
 }

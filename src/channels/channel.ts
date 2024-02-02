@@ -30,23 +30,21 @@ export class Channel {
     this.private = new PrivateChannel(options);
     this.presence = new PresenceChannel(io, options);
 
-    if (this.options.devMode) {
+    if (this.options.devMode)
       Log.success('Channels are ready.');
-    }
   }
 
   /**
    * Join a channel.
    */
   join(socket, data): void {
-    if (data.channel) {
-      if (this.isPrivate(data.channel)) {
+    if (data.channel)
+      if (this.isPrivate(data.channel))
         this.joinPrivate(socket, data);
-      } else {
+      else {
         socket.join(data.channel);
         this.onJoin(socket, data.channel);
       }
-    }
   }
 
   /**
@@ -59,7 +57,7 @@ export class Channel {
       data = data;
     }
 
-    if (data.event && data.channel) {
+    if (data.event && data.channel)
       if (this.isClientEvent(data.event) &&
         this.isPrivate(data.channel) &&
         this.isInChannel(socket, data.channel)) {
@@ -67,7 +65,6 @@ export class Channel {
           .broadcast.to(data.channel)
           .emit(data.event, data.channel, data.data);
       }
-    }
   }
 
   /**
@@ -75,15 +72,13 @@ export class Channel {
    */
   leave(socket: any, channel: string, reason: string): void {
     if (channel) {
-      if (this.isPresence(channel)) {
+      if (this.isPresence(channel))
         this.presence.leave(socket, channel)
-      }
 
       socket.leave(channel);
 
-      if (this.options.devMode) {
-        Log.info(`[${new Date().toISOString()}] - ${socket.id} left channel: ${channel} (${reason})`);
-      }
+      if (this.options.devMode)
+        Log.info(`${socket.id} left channel: ${channel} (${reason})`, true);
     }
   }
 
@@ -94,7 +89,7 @@ export class Channel {
     let isPrivate = false;
 
     this._privateChannels.forEach(privateChannel => {
-      let regex = new RegExp(privateChannel.replace('\*', '.*'));
+      const regex = new RegExp(privateChannel.replace('\*', '.*'));
       if (regex.test(channel)) isPrivate = true;
     });
 
@@ -109,7 +104,7 @@ export class Channel {
       socket.join(data.channel);
 
       if (this.isPresence(data.channel)) {
-        var member = res.channel_data;
+        let member = res.channel_data;
         try {
           member = JSON.parse(res.channel_data);
         } catch (e) { }
@@ -120,9 +115,8 @@ export class Channel {
       this.onJoin(socket, data.channel);
       this.io.sockets.to(socket.id).emit('channel_subscribe_success', data.channel, res.channel_data?.user_info);
     }, error => {
-      if (this.options.devMode) {
+      if (this.options.devMode)
         Log.error(error.reason);
-      }
 
       this.io.sockets.to(socket.id)
         .emit('subscription_error', data.channel, error.status);
@@ -140,9 +134,8 @@ export class Channel {
    * On join a channel log success.
    */
   onJoin(socket: any, channel: string): void {
-    if (this.options.devMode) {
-      Log.info(`[${new Date().toISOString()}] - ${socket.id} joined channel: ${channel}`);
-    }
+    if (this.options.devMode)
+      Log.info(`${socket.id} joined channel: ${channel}`, true);
   }
 
   /**
@@ -152,7 +145,7 @@ export class Channel {
     let isClientEvent = false;
 
     this._clientEvents.forEach(clientEvent => {
-      let regex = new RegExp(clientEvent.replace('\*', '.*'));
+      const regex = new RegExp(clientEvent.replace('\*', '.*'));
       if (regex.test(event)) isClientEvent = true;
     });
 

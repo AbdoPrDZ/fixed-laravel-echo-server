@@ -96,3 +96,11 @@ npm install -g laravel-echo-server
 # 0.0.6-beta
 
   - Fix firebase admin config file error.
+
+# 0.0.7-beta
+
+  - Upgrade some packages versions.
+  - Pass socket id with channel auth request form data.
+  - Add client connect and disconnect endpoints to truck client connection status.
+  - Edit some functions documentations.
+  - Clean the code.

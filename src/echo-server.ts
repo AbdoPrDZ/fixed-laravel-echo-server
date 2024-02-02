@@ -6,6 +6,7 @@ import { FirebaseAdmin } from './firebase_admin';
 import { Log } from './log';
 import * as fs from 'fs';
 import { Database } from './database';
+import axios from 'axios';
 const path = require("path");
 const packageFile = require('../package.json');
 const { constants } = require('crypto');
@@ -20,6 +21,8 @@ export class EchoServer {
   public defaultOptions: any = {
     authHost: 'http://localhost',
     authEndpoint: '/broadcasting/auth',
+    clientConnectEndpoint: null,
+    clientDisconnectEndpoint: null,
     clients: [],
     database: 'redis',
     databaseConfig: {
@@ -79,7 +82,7 @@ export class EchoServer {
   /**
    * Subscribers
    */
-  private subscribers: Subscriber[];
+  private subscribers: { [key: string]: Subscriber };
 
   /**
    * Http api instance.
@@ -98,9 +101,13 @@ export class EchoServer {
 
   /**
    * Start the Echo Server.
+   *
+   * @param options
+   * @param yargs
+   * @returns {Promise<EchoServer>}
    */
-  run(options: any, yargs: any): Promise<any> {
-    return new Promise((resolve, reject) => {
+  run(options: any, yargs: any): Promise<EchoServer> {
+    return new Promise<EchoServer>((resolve, reject) => {
       this.options = Object.assign(this.defaultOptions, options);
       this.startup();
       this.server = new Server(this.options);
@@ -115,17 +122,21 @@ export class EchoServer {
   }
 
   /**
-   * Initialize the class
+   * Initialize the class.
+   *
+   * @param io
+   * @param yargs
+   * @returns
    */
   init(io: any, yargs: any): Promise<any> {
     return new Promise((resolve, reject) => {
       this.channel = new Channel(io, this.options);
 
-      this.subscribers = [];
+      this.subscribers = {};
       if (this.options.subscribers.http)
-        this.subscribers.push(new HttpSubscriber(this.server.express, this.options));
+        this.subscribers.http = new HttpSubscriber(this.server.express, this.options);
       if (this.options.subscribers.redis)
-        this.subscribers.push(new RedisSubscriber(this.options));
+        this.subscribers.redis = new RedisSubscriber(this.options);
 
       this.httpApi = new HttpApi(io, this.channel, this.server.express, this.options.apiOriginAllow);
       this.httpApi.init();
@@ -138,9 +149,8 @@ export class EchoServer {
           this.options.firebaseAdmin.configSource
         )))
           Log.error(`Firebase admin service account file path not found ("${this.options.firebaseAdmin.configSource}")`)
-        else if (!this.options.firebaseAdmin.databaseURL) {
+        else if (!this.options.firebaseAdmin.databaseURL)
           Log.error('Firebase admin databaseURL is required\nPlease check your config json file');
-        }
         else {
           try {
             this.firebaseAdmin = new FirebaseAdmin(this.options, yargs);
@@ -153,9 +163,6 @@ export class EchoServer {
           }
         }
       }
-
-      this.db = new Database(this.options);
-      this.db.set('connected_clients', {});
 
       this.onConnect();
       this.listen().then(() => resolve(undefined), err => Log.error(err));
@@ -179,40 +186,44 @@ export class EchoServer {
 `);
     Log.info(`version ${packageFile.version}\n`);
 
-    if (this.options.devMode) {
+    if (this.options.devMode)
       Log.warning('Starting server in DEV mode...\n');
-    } else {
-      Log.info('Starting server...\n')
-    }
+    else
+      Log.info('Starting server...\n');
   }
 
   /**
    * Stop the echo server.
+   *
+   * @returns {Promise<any>}
    */
   stop(): Promise<any> {
     console.log('Stopping the LARAVEL ECHO SERVER')
-    let promises = [];
-    this.subscribers.forEach(subscriber => {
+    const promises = [];
+    Object.values(this.subscribers).forEach(subscriber => {
       promises.push(subscriber.unsubscribe());
     });
     promises.push(this.server.io.close());
     return Promise.all(promises).then(() => {
-      this.subscribers = [];
+      this.subscribers = {};
       console.log('The LARAVEL ECHO SERVER server has been stopped.');
     });
   }
 
   /**
    * Listen for incoming event from subscribers.
+   *
+   * @returns {Promise<any>}
    */
   listen(): Promise<any> {
     return new Promise((resolve, reject) => {
-      let subscribePromises = this.subscribers.map(subscriber => {
+      const subscribePromises = Object.values(this.subscribers).map(subscriber => {
         return subscriber.subscribe((channel, message) => {
           if (this.firebaseAdmin) {
             const firebaseChannel = this.options.firebaseAdmin.channel ?? 'private-firebase_channel'
             if (channel == firebaseChannel) return this.firebaseAdmin.onServerEvent(message);
           }
+
           return this.broadcast(channel, message);
         });
       });
@@ -223,6 +234,9 @@ export class EchoServer {
 
   /**
    * Return a channel by its socket id.
+   *
+   * @param socket_id
+   * @returns {any}
    */
   find(socket_id: string): any {
     return this.server.io.sockets.connected[socket_id];
@@ -230,17 +244,25 @@ export class EchoServer {
 
   /**
    * Broadcast events to channels from subscribers.
+   *
+   * @param channel
+   * @param message
+   * @returns {boolean}
    */
   broadcast(channel: string, message: any): boolean {
-    if (message.socket && this.find(message.socket)) {
+    if (message.socket && this.find(message.socket))
       return this.toOthers(this.find(message.socket), channel, message);
-    } else {
+    else
       return this.toAll(channel, message);
-    }
   }
 
   /**
    * Broadcast to others on channel.
+   *
+   * @param socket
+   * @param channel
+   * @param message
+   * @returns {boolean}
    */
   toOthers(socket: any, channel: string, message: any): boolean {
     socket.broadcast.to(channel)
@@ -251,6 +273,10 @@ export class EchoServer {
 
   /**
    * Broadcast to all members on channel.
+   *
+   * @param channel
+   * @param message
+   * @returns {boolean}
    */
   toAll(channel: string, message: any): boolean {
     this.server.io.to(channel)
@@ -263,21 +289,41 @@ export class EchoServer {
    * On server connection.
    */
   onConnect(): void {
-    this.server.io.on('connection', async socket => {
-      // var clients = await this.db.get("connected_clients") || {};
-      // clients[socket.id] = 'connected';
-      // this.db.set("connected_clients", clients);
-      // Log.info(clients);
-
+    this.server.io.on('connection', socket => {
+      this.onConnected(socket);
       this.onSubscribe(socket);
+      this.onClientEvent(socket);
       this.onUnsubscribe(socket);
       this.onDisconnecting(socket);
-      this.onClientEvent(socket);
+      this.onDisconnected(socket);
     });
   }
 
   /**
+   * On socket connected.
+   *
+   * @param socket
+   */
+  onConnected(socket: any): void {
+    Log.warning(`Client ${socket.id} connected`, true)
+    if (this.options.clientConnectEndpoint)
+      new Promise((resolve, reject) => {
+        axios.post(this.options.clientConnectEndpoint, {
+          socket_id: socket.id,
+        }, {
+          headers: socket.request.headers
+        }).then((response) => {
+          Log.info(`Client connect server request data:\n${JSON.stringify(response.data)}`, true)
+        }).catch((error) => {
+          Log.error(`Client connect server request error\n${error}`, true);
+        });
+      });
+  }
+
+  /**
    * On subscribe to a channel.
+   *
+   * @param socket
    */
   onSubscribe(socket: any): void {
     socket.on('subscribe', data => {
@@ -290,12 +336,26 @@ export class EchoServer {
             'Invalid channel name'
           );
       }
+
       this.channel.join(socket, data);
     });
   }
 
   /**
+   * On client events.
+   *
+   * @param socket
+   */
+  onClientEvent(socket: any): void {
+    socket.on('client event', data => {
+      this.channel.clientEvent(socket, data);
+    });
+  }
+
+  /**
    * On unsubscribe from a channel.
+   *
+   * @param socket
    */
   onUnsubscribe(socket: any): void {
     socket.on('unsubscribe', data => {
@@ -305,28 +365,38 @@ export class EchoServer {
 
   /**
    * On socket disconnecting.
+   *
+   * @param socket
    */
   onDisconnecting(socket: any): void {
     socket.on('disconnecting', (reason) => {
       Object.keys(socket.rooms).forEach(async room => {
-        if (room !== socket.id) {
-          // var clients = await this.db.get("connected_clients") || {};
-          // clients[socket.id] = 'disconnected';
-          // this.db.set("connected_clients", clients);
-          // Log.info(clients);
-
+        if (room !== socket.id)
           this.channel.leave(socket, room, reason);
-        }
       });
     });
   }
 
   /**
-   * On client events.
+   * On socket disconnected.
+   *
+   * @param socket
    */
-  onClientEvent(socket: any): void {
-    socket.on('client event', data => {
-      this.channel.clientEvent(socket, data);
+  onDisconnected(socket: any): void {
+    socket.on('disconnect', async (reason) => {
+      Log.warning(`Client ${socket.id} disconnected`, true);
+      if (this.options.clientDisconnectEndpoint)
+        new Promise((resolve, reject) => {
+          axios.post(this.options.clientDisconnectEndpoint, {
+            socket_id: socket.id,
+          }, {
+            headers: socket.request.headers
+          }).then((response) => {
+            Log.info(`Client disconnect server request data:\n${JSON.stringify(response.data)}`, true);
+          }).catch((error) => {
+            Log.error(`Client disconnect server request error\n${error}`, true);
+          });
+        });
     });
   }
 }

@@ -1,5 +1,5 @@
 import { Log } from './../log';
-let url = require('url');
+const url = require('url');
 import * as _ from 'lodash';
 
 export class HttpApi {
@@ -49,14 +49,13 @@ export class HttpApi {
    * Add CORS middleware if applicable.
    */
   corsMiddleware(): void {
-    if (this.options.allowCors) {
+    if (this.options.allowCors)
       this.express.use((req, res, next) => {
         res.header('Access-Control-Allow-Origin', this.options.allowOrigin);
         res.header('Access-Control-Allow-Methods', this.options.allowMethods);
         res.header('Access-Control-Allow-Headers', this.options.allowHeaders);
         next();
       });
-    }
   }
 
   /**
@@ -90,18 +89,15 @@ export class HttpApi {
    * @param {any} res
    */
   getChannels(req: any, res: any): void {
-    let prefix = url.parse(req.url, true).query.filter_by_prefix;
-    let rooms = this.io.sockets.adapter.rooms;
-    let channels = {};
+    const prefix = url.parse(req.url, true).query.filter_by_prefix;
+    const rooms = this.io.sockets.adapter.rooms;
+    const channels = {};
 
     Object.keys(rooms).forEach(function(channelName) {
-      if (rooms[channelName].sockets[channelName]) {
+      if (rooms[channelName].sockets[channelName])
         return;
-      }
 
-      if (prefix && !channelName.startsWith(prefix)) {
-        return;
-      }
+      if (prefix && !channelName.startsWith(prefix)) return;
 
       channels[channelName] = {
         subscription_count: rooms[channelName].length,
@@ -119,24 +115,23 @@ export class HttpApi {
    * @param  {any} res
    */
   getChannel(req: any, res: any): void {
-    let channelName = req.params.channelName;
-    let room = this.io.sockets.adapter.rooms[channelName];
-    let subscriptionCount = room ? room.length : 0;
+    const channelName = req.params.channelName;
+    const room = this.io.sockets.adapter.rooms[channelName];
+    const subscriptionCount = room ? room.length : 0;
 
-    let result = {
+    const result = {
       subscription_count: subscriptionCount,
       occupied: !!subscriptionCount
     };
 
-    if (this.channel.isPresence(channelName)) {
+    if (this.channel.isPresence(channelName))
       this.channel.presence.getMembers(channelName).then(members => {
         result['user_count'] = _.uniqBy(members, 'user_id').length;
 
         res.json(result);
       });
-    } else {
+    else
       res.json(result);
-    }
   }
 
   /**
@@ -147,18 +142,17 @@ export class HttpApi {
    * @return {boolean}
    */
   getChannelUsers(req: any, res: any): boolean {
-    let channelName = req.params.channelName;
+    const channelName = req.params.channelName;
 
-    if (!this.channel.isPresence(channelName)) {
+    if (!this.channel.isPresence(channelName))
       return this.badResponse(
         req,
         res,
         'User list is only possible for Presence Channels'
       );
-    }
 
     this.channel.presence.getMembers(channelName).then(members => {
-      let users = [];
+      const users = [];
 
       _.uniqBy(members, 'user_id').forEach((member: any) => {
         users.push({ id: member.user_id, user_info: member.user_info });

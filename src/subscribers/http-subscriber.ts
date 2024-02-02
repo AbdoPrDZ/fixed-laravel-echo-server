@@ -1,6 +1,5 @@
 import { Log } from './../log';
 import { Subscriber } from './subscriber';
-var url = require('url');
 
 export class HttpSubscriber implements Subscriber {
   /**
@@ -21,9 +20,7 @@ export class HttpSubscriber implements Subscriber {
       this.express.post('/apps/:appId/events', (req, res) => {
         let body: any = [];
         res.on('error', (error) => {
-          if (this.options.devMode) {
-            Log.error(error);
-          }
+          if (this.options.devMode) Log.error(error);
         });
 
         req.on('data', (chunk) => body.push(chunk))
@@ -68,17 +65,17 @@ export class HttpSubscriber implements Subscriber {
 
     if ((body.channels || body.channel) && body.name && body.data) {
 
-      var data = body.data;
+      let data = body.data;
       try {
         data = JSON.parse(data);
       } catch (e) { }
 
-      var message = {
+      const message = {
         event: body.name,
         data: data,
         socket: body.socket_id
       }
-      var channels = body.channels || [body.channel];
+      const channels = body.channels || [body.channel];
 
       if (this.options.devMode) {
         Log.info("Channel: " + channels.join(', '));

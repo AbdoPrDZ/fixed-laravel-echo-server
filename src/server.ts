@@ -1,9 +1,9 @@
-var fs = require('fs');
-var http = require('http');
-var https = require('https');
-var express = require('express');
-var url = require('url');
-var io = require('socket.io');
+import fs from 'fs';
+const http = require('http');
+const https = require('https');
+const express = require('express');
+import url from 'url';
+const io = require('socket.io');
 import { Log } from './log';
 
 export class Server {
@@ -34,7 +34,7 @@ export class Server {
   init(): Promise<any> {
     return new Promise((resolve, reject) => {
       this.serverProtocol().then(() => {
-        let host = this.options.host || 'localhost';
+        const host = this.options.host || 'localhost';
         Log.success(`Running at ${host} on port ${this.getPort()}`);
 
         resolve(this.io);
@@ -48,8 +48,8 @@ export class Server {
    * @return {number}
    */
   getPort() {
-    let portRegex = /([0-9]{2,5})[\/]?$/;
-    let portToUse = String(this.options.port).match(portRegex); // index 1 contains the cleaned port number only
+    const portRegex = /([0-9]{2,5})[\/]?$/;
+    const portToUse = String(this.options.port).match(portRegex); // index 1 contains the cleaned port number only
     return Number(portToUse[1]);
   }
 
@@ -60,13 +60,12 @@ export class Server {
    */
   serverProtocol(): Promise<any> {
     return new Promise((resolve, reject) => {
-      if (this.options.protocol == 'https') {
+      if (this.options.protocol == 'https')
         this.secure().then(() => {
           resolve(this.httpServer(true));
         }, error => reject(error));
-      } else {
+      else
         resolve(this.httpServer(false));
-      }
     });
   }
 
@@ -77,9 +76,8 @@ export class Server {
    */
   secure(): Promise<any> {
     return new Promise((resolve, reject) => {
-      if (!this.options.sslCertPath || !this.options.sslKeyPath) {
+      if (!this.options.sslCertPath || !this.options.sslKeyPath)
         reject('SSL paths are missing in server config.');
-      }
 
       Object.assign(this.options, {
         cert: fs.readFileSync(this.options.sslCertPath),
@@ -100,17 +98,13 @@ export class Server {
   httpServer(secure: boolean) {
     this.express = express();
     this.express.use((req, res, next) => {
-      for (var header in this.options.headers) {
+      for (const header in this.options.headers) {
         res.setHeader(header, this.options.headers[header]);
       }
       next();
     });
 
-    if (secure) {
-      var httpServer = https.createServer(this.options, this.express);
-    } else {
-      var httpServer = http.createServer(this.express);
-    }
+    const httpServer = secure ? https.createServer(this.options, this.express) : http.createServer(this.express);
 
     httpServer.listen(this.getPort(), this.options.host);
 
@@ -124,9 +118,8 @@ export class Server {
    */
   authorizeRequests(): void {
     this.express.param('appId', (req, res, next) => {
-      if (!this.canAccess(req)) {
+      if (!this.canAccess(req))
         return this.unauthorizedResponse(req, res);
-      }
 
       next();
     });
@@ -139,17 +132,15 @@ export class Server {
    * @return {boolean}
    */
   canAccess(req: any): boolean {
-    let appId = this.getAppId(req);
-    let key = this.getAuthKey(req);
+    const appId = this.getAppId(req);
+    const key = this.getAuthKey(req);
 
     if (key && appId) {
-      let client = this.options.clients.find((client) => {
+      const client = this.options.clients.find((client) => {
         return client.appId === appId;
       });
 
-      if (client) {
-        return client.key === key;
-      }
+      if (client) return client.key === key;
     }
 
     return false;
@@ -162,9 +153,8 @@ export class Server {
    * @return {string|boolean}
    */
   getAppId(req: any): (string | boolean) {
-    if (req.params.appId) {
+    if (req.params.appId)
       return req.params.appId;
-    }
 
     return false;
   }
@@ -175,17 +165,14 @@ export class Server {
    * @param  {any} req
    * @return {string|boolean}
    */
-  getAuthKey(req: any): (string | boolean) {
-    if (req.headers.authorization) {
+  getAuthKey(req: any): (string | string[] | boolean) {
+    if (req.headers.authorization)
       return req.headers.authorization.replace('Bearer ', '');
-    }
 
-    if (url.parse(req.url, true).query.auth_key) {
+    if (url.parse(req.url, true).query.auth_key)
       return url.parse(req.url, true).query.auth_key
-    }
 
     return false;
-
   }
 
   /**
