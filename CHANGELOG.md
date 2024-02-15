@@ -104,3 +104,7 @@ npm install -g laravel-echo-server
   - Add client connect and disconnect endpoints to truck client connection status.
   - Edit some functions documentations.
   - Clean the code.
+
+# 0.0.8
+
+  - Pass channels auth headers automatically in client connect/disconnect requests

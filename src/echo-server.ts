@@ -206,7 +206,7 @@ export class EchoServer {
     promises.push(this.server.io.close());
     return Promise.all(promises).then(() => {
       this.subscribers = {};
-      console.log('The LARAVEL ECHO SERVER server has been stopped.');
+      console.log('The FiXED LARAVEL ECHO SERVER server has been stopped.');
     });
   }
 
@@ -306,14 +306,14 @@ export class EchoServer {
    */
   onConnected(socket: any): void {
     Log.warning(`Client ${socket.id} connected`, true)
+
     if (this.options.clientConnectEndpoint)
       new Promise((resolve, reject) => {
-        axios.post(this.options.clientConnectEndpoint, {
-          socket_id: socket.id,
-        }, {
-          headers: socket.request.headers
+        axios.post(this.options.clientConnectEndpoint, {socket_id: socket.id}, {
+          headers: socket.handshake.auth ? socket.handshake.auth.headers : {},
         }).then((response) => {
           Log.info(`Client connect server request data:\n${JSON.stringify(response.data)}`, true)
+          resolve(undefined)
         }).catch((error) => {
           Log.error(`Client connect server request error\n${error}`, true);
         });
@@ -385,14 +385,14 @@ export class EchoServer {
   onDisconnected(socket: any): void {
     socket.on('disconnect', async (reason) => {
       Log.warning(`Client ${socket.id} disconnected`, true);
+
       if (this.options.clientDisconnectEndpoint)
         new Promise((resolve, reject) => {
-          axios.post(this.options.clientDisconnectEndpoint, {
-            socket_id: socket.id,
-          }, {
-            headers: socket.request.headers
+          axios.post(this.options.clientDisconnectEndpoint, {socket_id: socket.id}, {
+            headers: socket.handshake.auth ? socket.handshake.auth.headers : {},
           }).then((response) => {
             Log.info(`Client disconnect server request data:\n${JSON.stringify(response.data)}`, true);
+            resolve(undefined)
           }).catch((error) => {
             Log.error(`Client disconnect server request error\n${error}`, true);
           });
