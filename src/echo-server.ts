@@ -148,7 +148,10 @@ export class EchoServer {
           yargs.argv.dir || process.cwd(),
           this.options.firebaseAdmin.configSource
         )))
-          Log.error(`Firebase admin service account file path not found ("${this.options.firebaseAdmin.configSource}")`)
+          Log.error(`Firebase admin service account file path not found ("${path.join(
+          yargs.argv.dir || process.cwd(),
+          this.options.firebaseAdmin.configSource
+        )}")`)
         else if (!this.options.firebaseAdmin.databaseURL)
           Log.error('Firebase admin databaseURL is required\nPlease check your config json file');
         else {

@@ -32,9 +32,16 @@ export class FirebaseAdmin {
    *
    * @param event the server message event
    */
-  onServerEvent(event: any): void {
+  async onServerEvent(event: any): Promise<void> {
     try {
-      admin.messaging().sendMulticast(event.data);
+      const response = await admin.messaging().sendMulticast(event.data);
+
+      response.responses.forEach(response => {
+        if (!response.success)
+          Log.error(response.error);
+        else
+          Log.success(`Successfully sending message ${response.messageId}`)
+      });
     } catch (error) {
       Log.error(error)
     }
