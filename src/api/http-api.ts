@@ -26,22 +26,22 @@ export class HttpApi {
 
     this.express.get(
       '/apps/:appId/status',
-      this.getStatus
+      (req, res) => this.getStatus(req, res),
     )
 
     this.express.get(
       '/apps/:appId/channels',
-      this.getChannels
+      (req, res) => this.getChannels(req, res),
     )
 
     this.express.get(
       '/apps/:appId/channels/:channelName',
-      this.getChannel
+      (req, res) => this.getChannel(req, res),
     )
 
     this.express.get(
       '/apps/:appId/channels/:channelName/users',
-      this.getChannelUsers
+      (req, res) => this.getChannelUsers(req, res),
     )
   }
 
@@ -89,18 +89,18 @@ export class HttpApi {
    * @param {any} res
    */
   getChannels(req: any, res: any): void {
-    const prefix = url.parse(req.url, true).query.filter_by_prefix
+    const prefix = req.query.filter_by_prefix
     const rooms = this.io.sockets.adapter.rooms
     const channels = {}
 
-    Object.keys(rooms).forEach(function(channelName) {
-      if (rooms[channelName].sockets[channelName])
+    rooms.forEach((sockets, channelName) => {
+      if (sockets.has(channelName))
         return
 
       if (prefix && !channelName.startsWith(prefix)) return
 
       channels[channelName] = {
-        subscription_count: rooms[channelName].length,
+        subscription_count: sockets.size,
         occupied: true
       }
     })
@@ -116,8 +116,8 @@ export class HttpApi {
    */
   getChannel(req: any, res: any): void {
     const channelName = req.params.channelName
-    const room = this.io.sockets.adapter.rooms[channelName]
-    const subscriptionCount = room ? room.length : 0
+    const room = this.io.sockets.adapter.rooms.get(channelName)
+    const subscriptionCount = room ? room.size : 0
 
     const result = {
       subscription_count: subscriptionCount,
