@@ -65,7 +65,7 @@ export class HttpApi {
    * @param {any} res
    */
   getRoot(req: any, res: any): void {
-    res.send('OK');
+    res.json({ success: true, message: 'OK', headers: req.accepts() })
   }
 
   /**
