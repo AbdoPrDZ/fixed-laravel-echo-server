@@ -1,25 +1,25 @@
-import { Database } from './../database';
-import { Log } from './../log';
-const _ = require("lodash");
+import { Database } from './../database'
+import { Log } from './../log'
+const _ = require("lodash")
 
 export class PresenceChannel {
   /**
    * Database instance.
    */
-  db: Database;
+  db: Database
 
   /**
    * Create a new Presence channel instance.
    */
   constructor(private io, private options: any) {
-    this.db = new Database(options);
+    this.db = new Database(options)
   }
 
   /**
    * Get the members of a presence channel.
    */
   getMembers(channel: string): Promise<any> {
-    return this.db.get(channel + ":members");
+    return this.db.get(channel + ":members")
   }
 
   /**
@@ -32,19 +32,19 @@ export class PresenceChannel {
           this.removeInactive(channel, members, member).then(
             (members: any) => {
               const search = members.filter(
-                (m: { user_id: any; }) => m.user_id == member.user_id
-              );
+                (m: { user_id: any }) => m.user_id == member.user_i
+              )
 
               if (search && search.length)
-                resolve(true);
+                resolve(true)
 
-              resolve(false);
+              resolve(false)
             }
-          );
+          )
         },
         (error) => Log.error(error)
-      );
-    });
+      )
+    })
   }
 
   /**
@@ -56,16 +56,16 @@ export class PresenceChannel {
         .of("/")
         .in(channel)
         .clients((error, clients) => {
-          members = members || [];
+          members = members || []
           members = members.filter((member) => {
-            return clients.indexOf(member.socketId) >= 0;
-          });
+            return clients.indexOf(member.socketId) >= 0
+          })
 
-          this.db.set(channel + ":members", members);
+          this.db.set(channel + ":members", members)
 
-          resolve(members);
-        });
-    });
+          resolve(members)
+        })
+    })
   }
 
   /**
@@ -77,36 +77,36 @@ export class PresenceChannel {
       if (this.options.devMode)
         Log.error(
           "Unable to join channel. Member data for presence channel missing"
-        );
+        )
 
-      return;
+      return
     }
 
     this.isMember(channel, member).then(
       (is_member) => {
         this.getMembers(channel).then(
           (members) => {
-            members = members || [];
-            member.socketId = socket.id;
-            members.push(member);
+            members = members || []
+            member.socketId = socket.id
+            members.push(member)
 
-            this.db.set(channel + ":members", members);
+            this.db.set(channel + ":members", members)
 
-            members = _.uniqBy(members.reverse(), "user_id");
+            members = _.uniqBy(members.reverse(), "user_id")
 
-            this.onSubscribed(socket, channel, members);
+            this.onSubscribed(socket, channel, members)
 
             if (!is_member) {
-              this.onJoin(socket, channel, member);
+              this.onJoin(socket, channel, member)
             }
           },
           (error) => Log.error(error)
-        );
+        )
       },
       () => {
-        Log.error("Error retrieving pressence channel members.");
+        Log.error("Error retrieving pressence channel members.")
       }
-    );
+    )
   }
 
   /**
@@ -116,23 +116,23 @@ export class PresenceChannel {
   leave(socket: any, channel: string): void {
     this.getMembers(channel).then(
       (members) => {
-        members = members || [];
+        members = members || []
         const member = members.find(
-          (member: { socketId: any; }) => member.socketId == socket.id
-        );
-        members = members.filter((m) => m.socketId != member.socketId);
+          (member: { socketId: any }) => member.socketId == socket.id
+        )
+        members = members.filter((m) => m.socketId != member.socketId)
 
-        this.db.set(channel + ":members", members);
+        this.db.set(channel + ":members", members)
 
         this.isMember(channel, member).then((is_member) => {
           if (!is_member) {
-            delete member.socketId;
-            this.onLeave(channel, member);
+            delete member.socketId
+            this.onLeave(channel, member)
           }
-        });
+        })
       },
       (error) => Log.error(error)
-    );
+    )
   }
 
   /**
@@ -141,20 +141,20 @@ export class PresenceChannel {
   onJoin(socket: any, channel: string, member: any): void {
     this.io.sockets.connected[socket.id].broadcast
       .to(channel)
-      .emit("presence:joining", channel, member);
+      .emit("presence:joining", channel, member)
   }
 
   /**
    * On leave emitter.
    */
   onLeave(channel: string, member: any): void {
-    this.io.to(channel).emit("presence:leaving", channel, member);
+    this.io.to(channel).emit("presence:leaving", channel, member)
   }
 
   /**
    * On subscribed event emitter.
    */
   onSubscribed(socket: any, channel: string, members: any[]) {
-    this.io.to(socket.id).emit("presence:subscribed", channel, members);
+    this.io.to(socket.id).emit("presence:subscribed", channel, members)
   }
 }

@@ -1,6 +1,6 @@
-import { Log } from './../log';
-const url = require('url');
-import * as _ from 'lodash';
+import { Log } from './../log'
+const url = require('url')
+import * as _ from 'lodash'
 
 export class HttpApi {
   /**
@@ -17,32 +17,32 @@ export class HttpApi {
    * Initialize the API.
    */
   init(): void {
-    this.corsMiddleware();
+    this.corsMiddleware()
 
     this.express.get(
       '/',
-      (req, res) => this.getRoot(req, res),
-    );
+      this.getRoot,
+    )
 
     this.express.get(
       '/apps/:appId/status',
-      (req, res) => this.getStatus(req, res)
-    );
+      this.getStatus
+    )
 
     this.express.get(
       '/apps/:appId/channels',
-      (req, res) => this.getChannels(req, res)
-    );
+      this.getChannels
+    )
 
     this.express.get(
       '/apps/:appId/channels/:channelName',
-      (req, res) => this.getChannel(req, res)
-    );
+      this.getChannel
+    )
 
     this.express.get(
       '/apps/:appId/channels/:channelName/users',
-      (req, res) => this.getChannelUsers(req, res)
-    );
+      this.getChannelUsers
+    )
   }
 
   /**
@@ -51,11 +51,11 @@ export class HttpApi {
   corsMiddleware(): void {
     if (this.options.allowCors)
       this.express.use((req, res, next) => {
-        res.header('Access-Control-Allow-Origin', this.options.allowOrigin);
-        res.header('Access-Control-Allow-Methods', this.options.allowMethods);
-        res.header('Access-Control-Allow-Headers', this.options.allowHeaders);
-        next();
-      });
+        res.header('Access-Control-Allow-Origin', this.options.allowOrigin)
+        res.header('Access-Control-Allow-Methods', this.options.allowMethods)
+        res.header('Access-Control-Allow-Headers', this.options.allowHeaders)
+        next()
+      })
   }
 
   /**
@@ -79,7 +79,7 @@ export class HttpApi {
       subscription_count: this.io.engine.clientsCount,
       uptime: process.uptime(),
       memory_usage: process.memoryUsage(),
-    });
+    })
   }
 
   /**
@@ -89,23 +89,23 @@ export class HttpApi {
    * @param {any} res
    */
   getChannels(req: any, res: any): void {
-    const prefix = url.parse(req.url, true).query.filter_by_prefix;
-    const rooms = this.io.sockets.adapter.rooms;
-    const channels = {};
+    const prefix = url.parse(req.url, true).query.filter_by_prefix
+    const rooms = this.io.sockets.adapter.rooms
+    const channels = {}
 
     Object.keys(rooms).forEach(function(channelName) {
       if (rooms[channelName].sockets[channelName])
-        return;
+        return
 
-      if (prefix && !channelName.startsWith(prefix)) return;
+      if (prefix && !channelName.startsWith(prefix)) return
 
       channels[channelName] = {
         subscription_count: rooms[channelName].length,
         occupied: true
-      };
-    });
+      }
+    })
 
-    res.json({ channels: channels });
+    res.json({ channels: channels })
   }
 
   /**
@@ -115,23 +115,23 @@ export class HttpApi {
    * @param  {any} res
    */
   getChannel(req: any, res: any): void {
-    const channelName = req.params.channelName;
-    const room = this.io.sockets.adapter.rooms[channelName];
-    const subscriptionCount = room ? room.length : 0;
+    const channelName = req.params.channelName
+    const room = this.io.sockets.adapter.rooms[channelName]
+    const subscriptionCount = room ? room.length : 0
 
     const result = {
       subscription_count: subscriptionCount,
       occupied: !!subscriptionCount
-    };
+    }
 
     if (this.channel.isPresence(channelName))
       this.channel.presence.getMembers(channelName).then(members => {
-        result['user_count'] = _.uniqBy(members, 'user_id').length;
+        result['user_count'] = _.uniqBy(members, 'user_id').length
 
-        res.json(result);
-      });
+        res.json(result)
+      })
     else
-      res.json(result);
+      res.json(result)
   }
 
   /**
@@ -142,24 +142,24 @@ export class HttpApi {
    * @return {boolean}
    */
   getChannelUsers(req: any, res: any): boolean {
-    const channelName = req.params.channelName;
+    const channelName = req.params.channelName
 
     if (!this.channel.isPresence(channelName))
       return this.badResponse(
         req,
         res,
         'User list is only possible for Presence Channels'
-      );
+      )
 
     this.channel.presence.getMembers(channelName).then(members => {
-      const users = [];
+      const users = []
 
       _.uniqBy(members, 'user_id').forEach((member: any) => {
-        users.push({ id: member.user_id, user_info: member.user_info });
-      });
+        users.push({ id: member.user_id, user_info: member.user_info })
+      })
 
-      res.json({ users: users });
-    }, error => Log.error(error));
+      res.json({ users: users })
+    }, error => Log.error(error))
   }
 
   /**
@@ -171,9 +171,9 @@ export class HttpApi {
    * @return {boolean}
    */
   badResponse(req: any, res: any, message: string): boolean {
-    res.statusCode = 400;
-    res.json({ error: message });
+    res.statusCode = 400
+    res.json({ error: message })
 
-    return false;
+    return false
   }
 }

@@ -7,6 +7,6 @@
  * echo-server.json file if available.
  *
  */
-const LaravelEchoServerCli = require('../dist/cli');
+const LaravelEchoServerCli = require('../dist/cli')
 
-process.title = 'fixed-laravel-echo-server';
+process.title = 'fixed-laravel-echo-server'

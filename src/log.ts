@@ -1,4 +1,4 @@
-const colors = require('colors');
+const colors = require('colors')
 
 colors.setTheme({
   silly: 'rainbow',
@@ -13,7 +13,7 @@ colors.setTheme({
   error: 'red',
   h1: 'grey',
   h2: 'yellow'
-});
+})
 
 export class Log {
   /**
@@ -23,7 +23,7 @@ export class Log {
    * @return {void}
    */
   static title(message: any): void {
-    console.log(colors.green.bold(message));
+    console.log(colors.green.bold(message))
   }
 
   /**
@@ -33,7 +33,7 @@ export class Log {
    * @return {void}
    */
   static subtitle(message: any): void {
-    console.log(colors.h2.bold(message));
+    console.log(colors.h2.bold(message))
   }
 
   /**
@@ -44,9 +44,9 @@ export class Log {
    */
   static info(message: any, logTime = false): void {
     if (logTime)
-      console.log(colors.info(`[${new Date().toISOString()}] - ${message}`));
+      console.log(colors.info(`[${new Date().toISOString()}] - ${message}`))
     else
-      console.log(colors.info(message));
+      console.log(colors.info(message))
   }
 
   /**
@@ -57,9 +57,9 @@ export class Log {
    */
   static success(message: any, logTime = false): void {
     if (logTime)
-      console.log(`[${new Date().toISOString()}] - ${colors.green('\u2714 ')} ${message}`);
+      console.log(`[${new Date().toISOString()}] - ${colors.green('\u2714 ')} ${message}`)
     else
-      console.log(colors.green('\u2714 '), message);
+      console.log(colors.green('\u2714 '), message)
   }
 
   /**
@@ -72,9 +72,9 @@ export class Log {
    */
   static error(message: any, logTime = false): void {
     if (logTime)
-      console.log(colors.error(`[${new Date().toISOString()}] - ${message}`));
+      console.log(colors.error(`[${new Date().toISOString()}] - ${message}`))
     else
-      console.log(colors.error(message));
+      console.log(colors.error(message))
   }
 
   /**
@@ -85,8 +85,8 @@ export class Log {
    */
   static warning(message: any, logTime = false): void {
     if (logTime)
-      console.log(colors.warn(`[${new Date().toISOString()}] - \u26A0 ${message}`));
+      console.log(colors.warn(`[${new Date().toISOString()}] - \u26A0 ${message}`))
     else
-      console.log(colors.warn('\u26A0 ' + message));
+      console.log(colors.warn('\u26A0 ' + message))
   }
 }

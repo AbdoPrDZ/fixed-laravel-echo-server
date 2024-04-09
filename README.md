@@ -6,10 +6,10 @@ NodeJs server for Laravel Echo broadcasting with Socket.io.
 
 The following are required to function properly.
 
-*   Laravel 10x
-*   Node 18.0+
-*   Redis 3+
-*   Socket.IO 4+
+- Laravel 10x
+- Node 18.0+
+- Redis 3+
+- Socket.IO 4+
 
 Additional information on broadcasting with Laravel can be found on the
 official docs: <https://laravel.com/docs/master/broadcasting>
@@ -18,7 +18,7 @@ official docs: <https://laravel.com/docs/master/broadcasting>
 
 Install npm package globally with the following command:
 
-``` shell
+```shell
 $   npm install @abdopr/fixed-laravel-echo-server -g
 ```
 
@@ -26,7 +26,7 @@ $   npm install @abdopr/fixed-laravel-echo-server -g
 
 Run the init command in your project directory:
 
-``` shell
+```shell
 $   fixed-laravel-echo-server init
 ```
 
@@ -36,7 +36,7 @@ The cli tool will help you setup a **fixed-laravel-echo-server.json** file in th
 
 The Laravel Echo Server exposes a light http API to perform broadcasting functionality. For security purposes, access to these endpoints from http referrers must be authenticated with an APP id and key. This can be generated using the cli command:
 
-``` shell
+```shell
 $ fixed-laravel-echo-server client:add APP_ID
 ```
 
@@ -44,7 +44,7 @@ If you run `client:add` without an app id argument, one will be generated for yo
 
 In this example, requests will be allowed as long as the app id and key are both provided with http requests.
 
-``` http
+```http
 Request Headers
 
 Authorization:  Bearer skti68i...
@@ -60,7 +60,7 @@ You can remove clients with `fixed-laravel-echo-server client:remove APP_ID`
 
 in your project root directory, run
 
-``` shell
+```shell
 $ fixed-laravel-echo-server start
 ```
 
@@ -68,7 +68,7 @@ $ fixed-laravel-echo-server start
 
 in your project root directory, run
 
-``` shell
+```shell
 $ fixed-laravel-echo-server stop
 ```
 
@@ -76,33 +76,33 @@ $ fixed-laravel-echo-server stop
 
 Edit the default configuration of the server by adding options to your **fixed-laravel-echo-server.json** file.
 
-
-| Title                   | Default              | Description                 |
-| :---------------------- | :-------------------------------- | :---------------------------|
-| `apiOriginAllow`        | `{}`                              | Configuration to allow API be accessed over CORS. [Example](#cross-domain-access-to-api) |
-| `authEndpoint`          | `/broadcasting/auth`              | The route that authenticates private channels  |
-| `clientConnectEndpoint` | `/broadcasting/client_connect`    | The route for every client connected  |
-| `authEndpoint`          | `/broadcasting/client_disconnect` | The route for every client disconnected |
-| `authHost`              | `http://localhost`                | The host of the server that authenticates private and presence channels  |
-| `database`              | `redis`                           | Database used to store data that should persist, like presence channel members. Options are currently `redis` and `sqlite` |
-| `databaseConfig`        |  `{}`                             | Configurations for the different database drivers [Example](#database) |
-| `devMode`               | `false`                           | Adds additional logging for development purposes |
-| `host`                  | `null`                            | The host of the socket.io server ex.`app.dev`. `null` will accept connections on any IP-address |
-| `port`                  | `6001`                            | The port that the socket.io server should run on |
-| `protocol`              | `http`                            | Must be either `http` or `https` |
-| `sslCertPath`           | `''`                              | The path to your server's ssl certificate |
-| `sslKeyPath`            | `''`                              | The path to your server's ssl key |
-| `sslCertChainPath`      | `''`                              | The path to your server's ssl certificate chain |
-| `sslPassphrase`         | `''`                              | The pass phrase to use for the certificate (if applicable) |
-| `socketio`              | `{}`                              | Options to pass to the socket.io instance ([available options](https://github.com/socketio/engine.io#methods-1)) |
-| `subscribers`           | `{"http": true, "redis": true}`   | Allows to disable subscribers individually. Available subscribers: `http` and `redis` |
-| `firebaseAdmin`         | `{"configSource": "service-account.json", "databaseURL": "--database-url--", "channel": "private-firebase_admin"}` | FirebaseAdmin Service options this used to push notifications to clients using firebaseAdmin service |
+| Title                   | Default                                                                                                            | Description                                                                                                                |
+| :---------------------- | :----------------------------------------------------------------------------------------------------------------- | :------------------------------------------------------------------------------------------------------------------------- |
+| `apiOriginAllow`        | `{}`                                                                                                               | Configuration to allow API be accessed over CORS. [Example](#cross-domain-access-to-api)                                   |
+| `authEndpoint`          | `/broadcasting/auth`                                                                                               | The route that authenticates private channels                                                                              |
+| `clientConnectEndpoint` | `/broadcasting/client_connect`                                                                                     | The route for every client connected                                                                                       |
+| `authEndpoint`          | `/broadcasting/client_disconnect`                                                                                  | The route for every client disconnected                                                                                    |
+| `authHost`              | `http://localhost`                                                                                                 | The host of the server that authenticates private and presence channels                                                    |
+| `database`              | `redis`                                                                                                            | Database used to store data that should persist, like presence channel members. Options are currently `redis` and `sqlite` |
+| `databaseConfig`        | `{}`                                                                                                               | Configurations for the different database drivers [Example](#database)                                                     |
+| `devMode`               | `false`                                                                                                            | Adds additional logging for development purposes                                                                           |
+| `host`                  | `null`                                                                                                             | The host of the socket.io server ex.`app.dev`. `null` will accept connections on any IP-address                            |
+| `port`                  | `6001`                                                                                                             | The port that the socket.io server should run on                                                                           |
+| `protocol`              | `http`                                                                                                             | Must be either `http` or `https`                                                                                           |
+| `sslCertPath`           | `''`                                                                                                               | The path to your server's ssl certificate                                                                                  |
+| `sslKeyPath`            | `''`                                                                                                               | The path to your server's ssl key                                                                                          |
+| `sslCertChainPath`      | `''`                                                                                                               | The path to your server's ssl certificate chain                                                                            |
+| `sslPassphrase`         | `''`                                                                                                               | The pass phrase to use for the certificate (if applicable)                                                                 |
+| `socketIO`              | `{}`                                                                                                               | Options to pass to the socket.io instance ([available options](https://github.com/socketio/engine.io#methods-1))           |
+| `subscribers`           | `{"http": true, "redis": true}`                                                                                    | Allows to disable subscribers individually. Available subscribers: `http` and `redis`                                      |
+| `firebaseAdmin`         | `{"configSource": "service-account.json", "databaseURL": "--database-url--", "channel": "private-firebase_admin"}` | FirebaseAdmin Service options this used to push notifications to clients using firebaseAdmin service                       |
 
 ### DotEnv
+
 If a .env file is found in the same directory as the fixed-laravel-echo-server.json
 file, the following options can be overridden:
 
-- `authHost`: `LARAVEL_ECHO_SERVER_AUTH_HOST` *Note*: This option will fall back to the `LARAVEL_ECHO_SERVER_HOST` option as the default if that is set in the .env file.
+- `authHost`: `LARAVEL_ECHO_SERVER_AUTH_HOST` _Note_: This option will fall back to the `LARAVEL_ECHO_SERVER_HOST` option as the default if that is set in the .env file.
 - `host`: `LARAVEL_ECHO_SERVER_HOST`
 - `port`: `LARAVEL_ECHO_SERVER_PORT`
 - `devMode`: `LARAVEL_ECHO_SERVER_DEBUG`
@@ -115,18 +115,20 @@ file, the following options can be overridden:
 - `sslPassphrase`: `LARAVEL_ECHO_SERVER_SSL_PASS`
 - `sslCertChainPath`: `LARAVEL_ECHO_SERVER_SSL_CHAIN`
 
-
 ### Running with SSL
 
-*   Your client side implementation must access the socket.io client from https.
-*   The server configuration must set the server host to use https.
-*   The server configuration should include paths to both your ssl certificate and key located on your server.
+- Your client side implementation must access the socket.io client from https.
+- The server configuration must set the server host to use https.
+- The server configuration should include paths to both your ssl certificate and key located on your server.
 
-*Note: This library currently only supports serving from either http or https, not both.*
+_Note: This library currently only supports serving from either http or https, not both._
 
 #### Alternative SSL implementation
+
 If you are struggling to get SSL implemented with this package, you could look at using a proxy module within Apache or NginX. Essentially, instead of connecting your websocket traffic to https://yourserver.dev:6001/socket.io?..... and trying to secure it, you can connect your websocket traffic to https://yourserver.dev/socket.io. Behind the scenes, the proxy module of Apache or NginX will be configured to intercept requests for /socket.io, and internally redirect those to your echo server over non-ssl on port 6001. This keeps all of the traffic encrypted between browser and web server, as your web server will still do the SSL encryption/decryption. The only thing that is left unsecured is the traffic between your webserver and your Echo server, which might be acceptable in many cases.
+
 ##### Sample NginX proxy config
+
 ```
 #the following would go within the server{} block of your web server config
 location /socket.io {
@@ -149,14 +151,16 @@ ProxyPassReverse /socket.io http://localhost:6001/socket.io
 ```
 
 ### Setting the working directory
+
 The working directory in which `fixed-laravel-echo-server` will look for the configuration file `fixed-laravel-echo-server.json` can be passed to the `start` command through the `--dir` parameter like so: `fixed-laravel-echo-server start --dir=/var/www/html/example.com/configuration`
 
 ## Subscribers
+
 The Laravel Echo Server subscribes to incoming events with two methods: Redis & Http.
 
 ### Redis
 
- Your core application can use Redis to publish events to channels. The Laravel Echo Server will subscribe to those channels and broadcast those messages via socket.io.
+Your core application can use Redis to publish events to channels. The Laravel Echo Server will subscribe to those channels and broadcast those messages via socket.io.
 
 ### Http
 
@@ -164,24 +168,22 @@ Using Http, you can also publish events to the Laravel Echo Server in the same f
 
 **Request Endpoint**
 
-``` http
+```http
 POST http://app.dev:6001/apps/your-app-id/events?auth_key=skti68i...
 
 ```
 
 **Request Body**
 
-``` json
-
+```json
 {
   "channel": "channel-name",
   "name": "event-name",
   "data": {
-      "key": "value"
+    "key": "value"
   },
   "socket_id": "h3nAdb134tbvqwrg"
 }
-
 ```
 
 **channel** - The name of the channel to broadcast an event to. For private or presence channels prepend `private-` or `presence-`.
@@ -211,48 +213,54 @@ The HTTP subscriber is compatible with the Laravel Pusher subscriber. Just confi
 You can now send events using HTTP, without using Redis. This also allows you to use the Pusher API to list channels/users as described in the [Pusher PHP library](https://github.com/pusher/pusher-http-php)
 
 ## HTTP API
+
 The HTTP API exposes endpoints that allow you to gather information about your running server and channels.
 
 **Status**
 Get total number of clients, uptime of the server, and memory usage.
 
-``` http
+```http
 GET /apps/:APP_ID/status
 ```
+
 **Channels**
 List of all channels.
 
-``` http
+```http
 GET /apps/:APP_ID/channels
 ```
+
 **Channel**
 Get information about a particular channel.
 
-``` http
+```http
 GET /apps/:APP_ID/channels/:CHANNEL_NAME
 ```
+
 **Channel Users**
 List of users on a channel.
-``` http
+
+```http
 GET /apps/:APP_ID/channels/:CHANNEL_NAME/users
 ```
 
 ## Cross Domain Access To API
+
 Cross domain access can be specified in the fixed-laravel-echo-server.json file by changing `allowCors` in `apiOriginAllow` to `true`. You can then set the CORS Access-Control-Allow-Origin, Access-Control-Allow-Methods as a comma separated string (GET and POST are enabled by default) and the Access-Control-Allow-Headers that the API can receive.
 
 Example below:
 
-``` json
+```json
 {
-  "apiOriginAllow":{
-    "allowCors" : true,
-    "allowOrigin" : "http://127.0.0.1",
-    "allowMethods" : "GET, POST",
-    "allowHeaders" : "Origin, Content-Type, X-Auth-Token, X-Requested-With, Accept, Authorization, X-CSRF-TOKEN, X-Socket-Id"
+  "apiOriginAllow": {
+    "allowCors": true,
+    "allowOrigin": "http://127.0.0.1",
+    "allowMethods": "GET, POST",
+    "allowHeaders": "Origin, Content-Type, X-Auth-Token, X-Requested-With, Accept, Authorization, X-CSRF-TOKEN, X-Socket-Id"
   }
 }
-
 ```
+
 This allows you to send requests to the API via AJAX from an app that may be running on the same domain but a different port or an entirely different domain.
 
 ## Database
@@ -262,29 +270,30 @@ To persist presence channel data, there is support for use of Redis or SQLite as
 Each database driver may be configured in the **fixed-laravel-echo-server.json** file under the `databaseConfig` property. The options get passed through to the database provider, so developers are free to set these up as they wish.
 
 ### Redis
+
 For example, if you wanted to pass a custom configuration to Redis:
 
-``` json
-
+```json
 {
-  "databaseConfig" : {
-    "redis" : {
+  "databaseConfig": {
+    "redis": {
       "port": "3001",
       "host": "redis.app.dev",
       "keyPrefix": "my-redis-prefix"
     }
   }
 }
-
 ```
-*Note: No scheme (http/https etc) should be used for the host address*
 
-*A full list of Redis options can be found [here](https://github.com/luin/ioredis/blob/master/API.md#new-redisport-host-options).*
+_Note: No scheme (http/https etc) should be used for the host address_
+
+_A full list of Redis options can be found [here](https://github.com/luin/ioredis/blob/master/API.md#new-redisport-host-options)._
 
 ### Redis sentinel
-For example, if you wanted to use redis-sentinel, you need to pass a custom configuration : 
 
-``` json
+For example, if you wanted to use redis-sentinel, you need to pass a custom configuration :
+
+```json
  "databaseConfig": {
     "redis": {
       "sentinels": [
@@ -305,25 +314,27 @@ For example, if you wanted to use redis-sentinel, you need to pass a custom conf
       "sentinelPassword": "redis-password"
     },
   },
- ``` 
-*For more information about redis sentinel configuration you can check [this](https://github.com/luin/ioredis#sentinel)*
+```
+
+_For more information about redis sentinel configuration you can check [this](https://github.com/luin/ioredis#sentinel)_
+
 ### SQLite
 
 With SQLite you may be interested in changing the path where the database is stored.
 
-``` json
+```json
 {
-  "databaseConfig" : {
-    "sqlite" : {
+  "databaseConfig": {
+    "sqlite": {
       "databasePath": "/path/to/fixed-laravel-echo-server.sqlite"
     }
   }
 }
 ```
 
-***Note 1:*** The path is relative to the root of your application, not your system.
+**_Note 1:_** The path is relative to the root of your application, not your system.
 
-***Note 2:*** [node-sqlite3](https://github.com/mapbox/node-sqlite3) is required for this database. Please install before using.
+**_Note 2:_** [node-sqlite3](https://github.com/mapbox/node-sqlite3) is required for this database. Please install before using.
 
 ```
 npm install sqlite3 -g
@@ -341,7 +352,7 @@ Optionally, you can configure fixed-laravel-echo-server to publish an event on e
 {
   "database": "redis",
   "databaseConfig": {
-    "redis" : {
+    "redis": {
       "port": "6379",
       "host": "localhost"
     },
@@ -349,7 +360,9 @@ Optionally, you can configure fixed-laravel-echo-server to publish an event on e
   }
 }
 ```
+
 You can use Laravel's Redis integration, to trigger Application code from there:
+
 ```php
 Redis::subscribe(['PresenceChannelUpdated'], function ($message) {
   var_dump($message);
@@ -365,15 +378,15 @@ We add FirebaseAdmin service to use it to push notifications to clients using fi
   "enabled": false,
   "configSource": null,
   "databaseURL": null,
-  "channel": "private-firebase_admin",
+  "channel": "private-firebase_admin"
 }
 ```
 
 ### Notes
 
- - You need "service-account.json" config file [see](https://stackoverflow.com/questions/40799258/where-can-i-get-serviceaccountcredentials-json-for-firebase-admin).
- - You need to handle your notification in client side [see](https://firebase.flutter.dev/docs/messaging/overview)
- - The channel you chosen for this service you can't use it
+- You need "service-account.json" config file [see](https://stackoverflow.com/questions/40799258/where-can-i-get-serviceaccountcredentials-json-for-firebase-admin).
+- You need to handle your notification in client side [see](https://firebase.flutter.dev/docs/messaging/overview)
+- The channel you chosen for this service you can't use it
 
 ### Notification event example
 
@@ -420,7 +433,7 @@ class NotificationEvent implements ShouldBroadcast
   public function broadcastAs() {
     return 'NotificationEvent';
   }
-  
+
   /**
    * Get the channels the event should broadcast on.
    *
@@ -432,7 +445,7 @@ class NotificationEvent implements ShouldBroadcast
       new PrivateChannel('notifications'),
     ];
   }
-  
+
   /**
    * The event's broadcast name.
    *
@@ -459,7 +472,9 @@ class NotificationEvent implements ShouldBroadcast
 See the official Laravel documentation for more information. <https://laravel.com/docs/master/broadcasting#introduction>
 
 ### Tips
+
 #### Socket.io client library
+
 You can include the socket.io client library from your running server. For example, if your server is running at `app.dev:6001` you should be able to
 add a script tag to your html like so:
 
@@ -472,4 +487,3 @@ _Note: When using the socket.io client library from your running server, remembe
 #### µWebSockets deprecation
 
 µWebSockets has been [officially deprecated](https://www.npmjs.com/package/uws). Currently there is no support for µWebSockets in Socket.IO, but it may have the new [ClusterWS](https://www.npmjs.com/package/@clusterws/cws) support incoming. Meanwhile Laravel Echo Server will use [`ws` engine](https://www.npmjs.com/package/ws) by default until there is another option.
-

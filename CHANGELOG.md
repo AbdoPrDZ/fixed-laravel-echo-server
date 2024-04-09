@@ -113,3 +113,8 @@ npm install -g laravel-echo-server
 # 0.0.9
 
 - Log firebase-admin messaging response.
+
+# 0.1.0
+
+- Replace 'OK' response message to json response.
+- Clean the code.

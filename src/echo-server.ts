@@ -1,15 +1,15 @@
-import { HttpSubscriber, RedisSubscriber, Subscriber } from './subscribers';
-import { Channel } from './channels';
-import { Server } from './server';
-import { HttpApi } from './api';
-import { FirebaseAdmin } from './firebase_admin';
-import { Log } from './log';
-import * as fs from 'fs';
-import { Database } from './database';
-import axios from 'axios';
-const path = require("path");
-const packageFile = require('../package.json');
-const { constants } = require('crypto');
+import { HttpSubscriber, RedisSubscriber, Subscriber } from './subscribers'
+import { Channel } from './channels'
+import { Server } from './server'
+import { HttpApi } from './api'
+import { FirebaseAdmin } from './firebase_admin'
+import { Log } from './log'
+import * as fs from 'fs'
+import { Database } from './database'
+import axios from 'axios'
+const path = require("path")
+const packageFile = require('../package.json')
+const { constants } = require('crypto')
 
 /**
  * Echo server class.
@@ -35,7 +35,7 @@ export class EchoServer {
     host: null,
     port: 6001,
     protocol: "http",
-    socketio: {},
+    socketIO: {},
     secureOptions: constants.SSL_OP_NO_TLSv1,
     sslCertPath: '',
     sslKeyPath: '',
@@ -57,42 +57,42 @@ export class EchoServer {
       databaseURL: null,
       channel: 'private-firebase_admin',
     }
-  };
+  }
 
   /**
    * Configurable server options.
    */
-  public options: any;
+  public options: any
 
   /**
    * Socket.io server instance.
    */
-  private server: Server;
+  private server: Server
 
   /**
    * Database instance.
    */
-  private db: Database;
+  private db: Database
 
   /**
    * Channel instance.
    */
-  private channel: Channel;
+  private channel: Channel
 
   /**
    * Subscribers
    */
-  private subscribers: { [key: string]: Subscriber };
+  private subscribers: { [key: string]: Subscriber }
 
   /**
    * Http api instance.
    */
-  private httpApi: HttpApi;
+  private httpApi: HttpApi
 
   /**
    * Firebase Admin instance.
    */
-  private firebaseAdmin: FirebaseAdmin;
+  private firebaseAdmin: FirebaseAdmin
 
   /**
    * Create a new instance.
@@ -108,17 +108,17 @@ export class EchoServer {
    */
   run(options: any, yargs: any): Promise<EchoServer> {
     return new Promise<EchoServer>((resolve, reject) => {
-      this.options = Object.assign(this.defaultOptions, options);
-      this.startup();
-      this.server = new Server(this.options);
+      this.options = Object.assign(this.defaultOptions, options)
+      this.startup()
+      this.server = new Server(this.options)
 
       this.server.init().then(io => {
         this.init(io, yargs).then(() => {
-          Log.info('\nServer ready!\n');
-          resolve(this);
-        }, error => Log.error(error));
-      }, error => Log.error(error));
-    });
+          Log.info('\nServer ready!\n')
+          resolve(this)
+        }, error => Log.error(error))
+      }, error => Log.error(error))
+    })
   }
 
   /**
@@ -130,20 +130,20 @@ export class EchoServer {
    */
   init(io: any, yargs: any): Promise<any> {
     return new Promise((resolve, reject) => {
-      this.channel = new Channel(io, this.options);
+      this.channel = new Channel(io, this.options)
 
-      this.subscribers = {};
+      this.subscribers = {}
       if (this.options.subscribers.http)
-        this.subscribers.http = new HttpSubscriber(this.server.express, this.options);
+        this.subscribers.http = new HttpSubscriber(this.server.express, this.options)
       if (this.options.subscribers.redis)
-        this.subscribers.redis = new RedisSubscriber(this.options);
+        this.subscribers.redis = new RedisSubscriber(this.options)
 
-      this.httpApi = new HttpApi(io, this.channel, this.server.express, this.options.apiOriginAllow);
-      this.httpApi.init();
+      this.httpApi = new HttpApi(io, this.channel, this.server.express, this.options.apiOriginAllow)
+      this.httpApi.init()
 
       if (this.options.firebaseAdmin.enabled) {
         if (!this.options.firebaseAdmin.configSource)
-          Log.error('Firebase admin service account file path is required\nPlease check your config json file');
+          Log.error('Firebase admin service account file path is required\nPlease check your config json file')
         else if (!fs.existsSync(path.join(
           yargs.argv.dir || process.cwd(),
           this.options.firebaseAdmin.configSource
@@ -153,23 +153,23 @@ export class EchoServer {
           this.options.firebaseAdmin.configSource
         )}")`)
         else if (!this.options.firebaseAdmin.databaseURL)
-          Log.error('Firebase admin databaseURL is required\nPlease check your config json file');
+          Log.error('Firebase admin databaseURL is required\nPlease check your config json file')
         else {
           try {
-            this.firebaseAdmin = new FirebaseAdmin(this.options, yargs);
-            this.firebaseAdmin.init();
+            this.firebaseAdmin = new FirebaseAdmin(this.options, yargs)
+            this.firebaseAdmin.init()
 
             Log.success('FirebaseAdmin service is running...')
           } catch (error) {
             Log.error('Cannot init Firebase Admin Service')
-            Log.error(error);
+            Log.error(error)
           }
         }
       }
 
-      this.onConnect();
-      this.listen().then(() => resolve(undefined), err => Log.error(err));
-    });
+      this.onConnect()
+      this.listen().then(() => resolve(undefined), err => Log.error(err))
+    })
   }
 
   /**
@@ -186,13 +186,13 @@ export class EchoServer {
 ----------------------------------------------------------------------------------------------------------
 |                                   Powered By AbdoPrDZ "Just Code It";                                  |
 ----------------------------------------------------------------------------------------------------------
-`);
-    Log.info(`version ${packageFile.version}\n`);
+`)
+    Log.info(`version ${packageFile.version}\n`)
 
     if (this.options.devMode)
-      Log.warning('Starting server in DEV mode...\n');
+      Log.warning('Starting server in DEV mode...\n')
     else
-      Log.info('Starting server...\n');
+      Log.info('Starting server...\n')
   }
 
   /**
@@ -202,15 +202,15 @@ export class EchoServer {
    */
   stop(): Promise<any> {
     console.log('Stopping the LARAVEL ECHO SERVER')
-    const promises = [];
+    const promises = []
     Object.values(this.subscribers).forEach(subscriber => {
-      promises.push(subscriber.unsubscribe());
-    });
-    promises.push(this.server.io.close());
+      promises.push(subscriber.unsubscribe())
+    })
+    promises.push(this.server.io.close())
     return Promise.all(promises).then(() => {
-      this.subscribers = {};
-      console.log('The FiXED LARAVEL ECHO SERVER server has been stopped.');
-    });
+      this.subscribers = {}
+      console.log('The FiXED LARAVEL ECHO SERVER server has been stopped.')
+    })
   }
 
   /**
@@ -224,15 +224,15 @@ export class EchoServer {
         return subscriber.subscribe((channel, message) => {
           if (this.firebaseAdmin) {
             const firebaseChannel = this.options.firebaseAdmin.channel ?? 'private-firebase_channel'
-            if (channel == firebaseChannel) return this.firebaseAdmin.onServerEvent(message);
+            if (channel == firebaseChannel) return this.firebaseAdmin.onServerEvent(message)
           }
 
-          return this.broadcast(channel, message);
-        });
-      });
+          return this.broadcast(channel, message)
+        })
+      })
 
-      Promise.all(subscribePromises).then(() => resolve(undefined));
-    });
+      Promise.all(subscribePromises).then(() => resolve(undefined))
+    })
   }
 
   /**
@@ -242,7 +242,7 @@ export class EchoServer {
    * @returns {any}
    */
   find(socket_id: string): any {
-    return this.server.io.sockets.connected[socket_id];
+    return this.server.io.sockets.connected[socket_id]
   }
 
   /**
@@ -254,9 +254,9 @@ export class EchoServer {
    */
   broadcast(channel: string, message: any): boolean {
     if (message.socket && this.find(message.socket))
-      return this.toOthers(this.find(message.socket), channel, message);
+      return this.toOthers(this.find(message.socket), channel, message)
     else
-      return this.toAll(channel, message);
+      return this.toAll(channel, message)
   }
 
   /**
@@ -269,7 +269,7 @@ export class EchoServer {
    */
   toOthers(socket: any, channel: string, message: any): boolean {
     socket.broadcast.to(channel)
-      .emit(message.event, channel, message.data);
+      .emit(message.event, channel, message.data)
 
     return true
   }
@@ -283,7 +283,7 @@ export class EchoServer {
    */
   toAll(channel: string, message: any): boolean {
     this.server.io.to(channel)
-      .emit(message.event, channel, message.data);
+      .emit(message.event, channel, message.data)
 
     return true
   }
@@ -293,13 +293,13 @@ export class EchoServer {
    */
   onConnect(): void {
     this.server.io.on('connection', socket => {
-      this.onConnected(socket);
-      this.onSubscribe(socket);
-      this.onClientEvent(socket);
-      this.onUnsubscribe(socket);
-      this.onDisconnecting(socket);
-      this.onDisconnected(socket);
-    });
+      this.onConnected(socket)
+      this.onSubscribe(socket)
+      this.onClientEvent(socket)
+      this.onUnsubscribe(socket)
+      this.onDisconnecting(socket)
+      this.onDisconnected(socket)
+    })
   }
 
   /**
@@ -318,9 +318,9 @@ export class EchoServer {
           Log.info(`Client connect server request data:\n${JSON.stringify(response.data)}`, true)
           resolve(undefined)
         }).catch((error) => {
-          Log.error(`Client connect server request error\n${error}`, true);
-        });
-      });
+          Log.error(`Client connect server request error\n${error}`, true)
+        })
+      })
   }
 
   /**
@@ -337,11 +337,11 @@ export class EchoServer {
             'subscription_error',
             data.channel,
             'Invalid channel name'
-          );
+          )
       }
 
-      this.channel.join(socket, data);
-    });
+      this.channel.join(socket, data)
+    })
   }
 
   /**
@@ -351,8 +351,8 @@ export class EchoServer {
    */
   onClientEvent(socket: any): void {
     socket.on('client event', data => {
-      this.channel.clientEvent(socket, data);
-    });
+      this.channel.clientEvent(socket, data)
+    })
   }
 
   /**
@@ -362,8 +362,8 @@ export class EchoServer {
    */
   onUnsubscribe(socket: any): void {
     socket.on('unsubscribe', data => {
-      this.channel.leave(socket, data.channel, 'unsubscribed');
-    });
+      this.channel.leave(socket, data.channel, 'unsubscribed')
+    })
   }
 
   /**
@@ -375,9 +375,9 @@ export class EchoServer {
     socket.on('disconnecting', (reason) => {
       Object.keys(socket.rooms).forEach(async room => {
         if (room !== socket.id)
-          this.channel.leave(socket, room, reason);
-      });
-    });
+          this.channel.leave(socket, room, reason)
+      })
+    })
   }
 
   /**
@@ -387,19 +387,19 @@ export class EchoServer {
    */
   onDisconnected(socket: any): void {
     socket.on('disconnect', async (reason) => {
-      Log.warning(`Client ${socket.id} disconnected`, true);
+      Log.warning(`Client ${socket.id} disconnected`, true)
 
       if (this.options.clientDisconnectEndpoint)
         new Promise((resolve, reject) => {
           axios.post(this.options.clientDisconnectEndpoint, {socket_id: socket.id}, {
             headers: socket.handshake.auth ? socket.handshake.auth.headers : {},
           }).then((response) => {
-            Log.info(`Client disconnect server request data:\n${JSON.stringify(response.data)}`, true);
+            Log.info(`Client disconnect server request data:\n${JSON.stringify(response.data)}`, true)
             resolve(undefined)
           }).catch((error) => {
-            Log.error(`Client disconnect server request error\n${error}`, true);
-          });
-        });
-    });
+            Log.error(`Client disconnect server request error\n${error}`, true)
+          })
+        })
+    })
   }
 }

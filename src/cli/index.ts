@@ -1,6 +1,6 @@
-import { Cli } from './cli';
+import { Cli } from './cli'
 
-const cli = new Cli();
+const cli = new Cli()
 
 const yargs = require('yargs')
   .usage("Usage: fixed-laravel-echo-server <command> [options]")
@@ -11,8 +11,8 @@ const yargs = require('yargs')
   .command("client:remove [id]",  "Remove a registered client.",                   yargs => cli.clientRemove(yargs))
   .demandCommand(1, "Please provide a valid command.")
   .help("help")
-  .alias("help", "h");
+  .alias("help", "h")
 
-yargs.$0 = '';
+yargs.$0 = ''
 
-const argv = yargs.argv;
+const argv = yargs.argv

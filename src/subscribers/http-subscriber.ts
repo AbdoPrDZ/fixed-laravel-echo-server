@@ -1,5 +1,5 @@
-import { Log } from './../log';
-import { Subscriber } from './subscriber';
+import { Log } from './../log'
+import { Subscriber } from './subscriber'
 
 export class HttpSubscriber implements Subscriber {
   /**
@@ -18,19 +18,19 @@ export class HttpSubscriber implements Subscriber {
     return new Promise((resolve, reject) => {
       // Broadcast a message to a channel
       this.express.post('/apps/:appId/events', (req, res) => {
-        let body: any = [];
+        let body: any = []
         res.on('error', (error) => {
-          if (this.options.devMode) Log.error(error);
-        });
+          if (this.options.devMode) Log.error(error)
+        })
 
         req.on('data', (chunk) => body.push(chunk))
-          .on('end', () => this.handleData(req, res, body, callback));
-      });
+          .on('end', () => this.handleData(req, res, body, callback))
+      })
 
-      Log.success('Listening for http events...');
+      Log.success('Listening for http events...')
 
-      resolve(undefined);
-    });
+      resolve(undefined)
+    })
   }
 
   /**
@@ -42,13 +42,13 @@ export class HttpSubscriber implements Subscriber {
     return new Promise((resolve, reject) => {
       try {
         this.express.post('/apps/:appId/events', (req, res) => {
-          res.status(404).send();
-        });
-        resolve(undefined);
+          res.status(404).send()
+        })
+        resolve(undefined)
       } catch(e) {
-        reject('Could not overwrite the event endpoint -> ' + e);
+        reject('Could not overwrite the event endpoint -> ' + e)
       }
-    });
+    })
   }
 
   /**
@@ -61,13 +61,13 @@ export class HttpSubscriber implements Subscriber {
    * @return {boolean}
    */
   handleData(req, res, body, broadcast): boolean {
-    body = JSON.parse(Buffer.concat(body).toString());
+    body = JSON.parse(Buffer.concat(body).toString())
 
     if ((body.channels || body.channel) && body.name && body.data) {
 
-      let data = body.data;
+      let data = body.data
       try {
-        data = JSON.parse(data);
+        data = JSON.parse(data)
       } catch (e) { }
 
       const message = {
@@ -75,20 +75,20 @@ export class HttpSubscriber implements Subscriber {
         data: data,
         socket: body.socket_id
       }
-      const channels = body.channels || [body.channel];
+      const channels = body.channels || [body.channel]
 
       if (this.options.devMode) {
-        Log.info("Channel: " + channels.join(', '));
-        Log.info("Event: " + message.event);
+        Log.info("Channel: " + channels.join(', '))
+        Log.info("Event: " + message.event)
       }
 
-      channels.forEach(channel => broadcast(channel, message));
+      channels.forEach(channel => broadcast(channel, message))
     } else {
       return this.badResponse(
         req,
         res,
         'Event must include channel, event name and data'
-      );
+      )
     }
 
     res.json({ message: 'ok' })
@@ -103,9 +103,9 @@ export class HttpSubscriber implements Subscriber {
    * @return {boolean}
    */
   badResponse(req: any, res: any, message: string): boolean {
-    res.statusCode = 400;
-    res.json({ error: message });
+    res.statusCode = 400
+    res.json({ error: message })
 
-    return false;
+    return false
   }
 }

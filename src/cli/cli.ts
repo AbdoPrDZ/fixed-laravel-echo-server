@@ -1,11 +1,11 @@
-const fs = require("fs");
-const path = require("path");
-const colors = require("colors");
-const echo = require("./../../dist");
-const inquirer = require("inquirer");
-const crypto = require("crypto");
+const fs = require("fs")
+const path = require("path")
+const colors = require("colors")
+const echo = require("./../../dist")
+const inquirer = require("inquirer")
+const crypto = require("crypto")
 
-import ErrnoException = NodeJS.ErrnoException;
+import ErrnoException = NodeJS.ErrnoException
 
 /**
  * Laravel Echo Server CLI
@@ -15,13 +15,13 @@ export class Cli {
    * Create new CLI instance.
    */
   constructor() {
-    this.defaultOptions = echo.defaultOptions;
+    this.defaultOptions = echo.defaultOptions
   }
 
   /**
    * Default configuration options.
    */
-  defaultOptions: any;
+  defaultOptions: any
 
   /**
    * Allowed environment variables.
@@ -39,7 +39,7 @@ export class Cli {
     LARAVEL_ECHO_SERVER_SSL_KEY: "sslKeyPath",
     LARAVEL_ECHO_SERVER_SSL_CHAIN: "sslCertChainPath",
     LARAVEL_ECHO_SERVER_SSL_PASS: "sslPassphrase"
-  };
+  }
 
   /**
    * Create a configuration file.
@@ -51,35 +51,35 @@ export class Cli {
         default: "fixed-laravel-echo-server.json",
         describe: "The name of the config file to create."
       }
-    });
+    })
 
     this.setupConfig(yargs.argv.config).then(
       options => {
-        options = Object.assign({}, this.defaultOptions, options);
+        options = Object.assign({}, this.defaultOptions, options)
 
         if (options.addClient) {
           const client = {
             appId: this.createAppId(),
             key: this.createApiKey()
-          };
-          options.clients.push(client);
+          }
+          options.clients.push(client)
 
-          console.log("appId: " + colors.magenta(client.appId));
-          console.log("key: " + colors.magenta(client.key));
+          console.log("appId: " + colors.magenta(client.appId))
+          console.log("key: " + colors.magenta(client.key))
         }
 
         if (options.corsAllow) {
-          options.apiOriginAllow.allowCors = true;
-          options.apiOriginAllow.allowOrigin = options.allowOrigin;
-          options.apiOriginAllow.allowMethods = options.allowMethods;
-          options.apiOriginAllow.allowHeaders = options.allowHeaders;
+          options.apiOriginAllow.allowCors = true
+          options.apiOriginAllow.allowOrigin = options.allowOrigin
+          options.apiOriginAllow.allowMethods = options.allowMethods
+          options.apiOriginAllow.allowHeaders = options.allowHeaders
         }
 
         if (options.enableFirebaseAdminService) {
-          options.firebaseAdmin.enabled = true;
-          options.firebaseAdmin.configSource = options.firebaseAdminServiceConfigFile;
-          options.firebaseAdmin.databaseURL = options.firebaseAdminServiceDatabaseURL;
-          options.firebaseAdmin.channel = options.firebaseAdminServiceChannel;
+          options.firebaseAdmin.enabled = true
+          options.firebaseAdmin.configSource = options.firebaseAdminServiceConfigFile
+          options.firebaseAdmin.databaseURL = options.firebaseAdminServiceDatabaseURL
+          options.firebaseAdmin.channel = options.firebaseAdminServiceChannel
         }
 
         this.saveConfig(options).then(
@@ -93,45 +93,45 @@ export class Cli {
                       : "")
                 ) +
                 " to run server."
-            );
+            )
 
-            process.exit();
+            process.exit()
           },
           error => {
-            console.error(colors.error(error));
+            console.error(colors.error(error))
           }
-        );
+        )
       },
       error => console.error(error)
-    );
+    )
   }
 
   /**
    * Inject the .env vars into options if they exist.
    */
   resolveEnvFileOptions(options: any): any {
-    require("dotenv").config();
+    require("dotenv").config()
 
     for (const key in this.envVariables) {
-      let value = (process.env[key] || "").toString();
-      let replacementVar;
+      let value = (process.env[key] || "").toString()
+      let replacementVar
 
       if (value) {
-        const path = this.envVariables[key].split(".");
-        let modifier = options;
+        const path = this.envVariables[key].split(".")
+        let modifier = options
 
         while (path.length > 1) {
-          modifier = modifier[path.shift()];
+          modifier = modifier[path.shift()]
         }
 
         if ((replacementVar = value.match(/\${(.*?)}/)))
-          value = (process.env[replacementVar[1]] || "").toString();
+          value = (process.env[replacementVar[1]] || "").toString()
 
-        modifier[path.shift()] = value;
+        modifier[path.shift()] = value
       }
     }
 
-    return options;
+    return options
   }
 
   /**
@@ -173,7 +173,7 @@ export class Cli {
         default: "/broadcasting/client_connect",
         message: "Enter your client connect endpoint",
         when: function(option) {
-          return option.addClientConnectEndpoint;
+          return option.addClientConnectEndpoint
         }
       },
       {
@@ -187,7 +187,7 @@ export class Cli {
         default: "/broadcasting/client_disconnect",
         message: "Enter your client disconnect endpoint",
         when: function(option) {
-          return option.addClientDisconnectEndpoint;
+          return option.addClientDisconnectEndpoint
         }
       },
       {
@@ -200,14 +200,14 @@ export class Cli {
         name: "sslCertPath",
         message: "Enter the path to your SSL cert file.",
         when: function(options) {
-          return options.protocol == "https";
+          return options.protocol == "https"
         }
       },
       {
         name: "sslKeyPath",
         message: "Enter the path to your SSL key file.",
         when: function(options) {
-          return options.protocol == "https";
+          return options.protocol == "https"
         }
       },
       {
@@ -228,7 +228,7 @@ export class Cli {
         default: "http://localhost:80",
         message: "Specify the URI that may access the API:",
         when: function(options) {
-          return options.corsAllow == true;
+          return options.corsAllow == true
         }
       },
       {
@@ -236,7 +236,7 @@ export class Cli {
         default: "GET, POST",
         message: "Enter the HTTP methods that are allowed for CORS:",
         when: function(options) {
-          return options.corsAllow == true;
+          return options.corsAllow == true
         }
       },
       {
@@ -245,7 +245,7 @@ export class Cli {
           "Origin, Content-Type, X-Auth-Token, X-Requested-With, Accept, Authorization, X-CSRF-TOKEN, X-Socket-Id",
         message: "Enter the HTTP headers that are allowed for CORS:",
         when: function(options) {
-          return options.corsAllow == true;
+          return options.corsAllow == true
         }
       },
       {
@@ -259,7 +259,7 @@ export class Cli {
         default: 'service-account.json',
         message: "Enter firebase admin service config file location",
         when: function(options) {
-          return options.enableFirebaseAdminService == true;
+          return options.enableFirebaseAdminService == true
         }
       },
       {
@@ -267,7 +267,7 @@ export class Cli {
         message: "Enter firebase admin service database url (required)",
         required: true,
         when: function(options) {
-          return options.enableFirebaseAdminService == true;
+          return options.enableFirebaseAdminService == true
         }
       },
       {
@@ -275,7 +275,7 @@ export class Cli {
         message: "Enter firebase admin service channel",
         default: 'private-firebase_admin',
         when: function(options) {
-          return options.enableFirebaseAdminService == true;
+          return options.enableFirebaseAdminService == true
         }
       },
       {
@@ -283,20 +283,20 @@ export class Cli {
         default: defaultFile,
         message: "What do you want this config to be saved as?"
       },
-    ]);
+    ])
   }
 
   /**
    * Save configuration file.
    */
   saveConfig(options): Promise<any> {
-    const opts = {};
+    const opts = {}
 
     Object.keys(options)
       .filter(k => {
-        return Object.keys(this.defaultOptions).indexOf(k) >= 0;
+        return Object.keys(this.defaultOptions).indexOf(k) >= 0
       })
-      .forEach(option => (opts[option] = options[option]));
+      .forEach(option => (opts[option] = options[option]))
 
     return new Promise((resolve, reject) => {
       if (opts)
@@ -304,10 +304,10 @@ export class Cli {
           this.getConfigFile(options.file),
           JSON.stringify(opts, null, "\t"),
           error => (error ? reject(error) : resolve(options.file))
-        );
+        )
       else
-        reject("No options provided.");
-    });
+        reject("No options provided.")
+    })
   }
 
   /**
@@ -334,52 +334,52 @@ export class Cli {
         type: "boolean",
         describe: "Run in dev mode."
       }
-    });
+    })
 
     const configFile = this.getConfigFile(
       yargs.argv.config,
       yargs.argv.dir
-    );
+    )
 
     fs.access(configFile, fs.F_OK, error => {
       if (error) {
         console.error(
           colors.error("Error: The config file could not be found.")
-        );
+        )
 
-        return false;
+        return false
       }
 
-      const options = this.readConfigFile(configFile);
+      const options = this.readConfigFile(configFile)
 
       options.devMode =
-        `${yargs.argv.dev || options.devMode || false}` === "true";
+        `${yargs.argv.dev || options.devMode || false}` === "true"
 
       const lockFile = path.join(
         path.dirname(configFile),
         path.basename(configFile, ".json") + ".lock"
-      );
+      )
 
       if (fs.existsSync(lockFile)) {
-        let lockProcess;
+        let lockProcess
 
         try {
           lockProcess = parseInt(
             JSON.parse(fs.readFileSync(lockFile, "utf8")).process
-          );
+          )
         } catch {
           console.error(
             colors.error(
               "Error: There was a problem reading the existing lock file."
             )
-          );
+          )
         }
 
         if (lockProcess) try {
-          process.kill(lockProcess, 0);
+          process.kill(lockProcess, 0)
 
           if (yargs.argv.force) {
-            process.kill(lockProcess);
+            process.kill(lockProcess)
 
             console.log(
               colors.yellow(
@@ -387,15 +387,15 @@ export class Cli {
                   lockProcess +
                   " because you used the '--force' option."
               )
-            );
+            )
           } else {
             console.error(
               colors.error(
                 "Error: There is already a server running! Use the option '--force' to stop it and start another one."
               )
-            );
+            )
 
-            return false;
+            return false
           }
         } catch {
           // The process in the lock file doesn't exist, so continue
@@ -409,25 +409,25 @@ export class Cli {
           if (error) {
             console.error(
               colors.error("Error: Cannot write lock file.")
-            );
+            )
 
-            return false;
+            return false
           }
 
           process.on("exit", () => {
             try {
-              fs.unlinkSync(lockFile);
+              fs.unlinkSync(lockFile)
             } catch {}
-          });
+          })
 
-          process.on("SIGINT", () => process.exit());
-          process.on("SIGHUP", () => process.exit());
-          process.on("SIGTERM", () => process.exit());
+          process.on("SIGINT", () => process.exit())
+          process.on("SIGHUP", () => process.exit())
+          process.on("SIGTERM", () => process.exit())
 
-          echo.run(options, yargs);
+          echo.run(options, yargs)
         }
-      );
-    });
+      )
+    })
   }
 
   /**
@@ -444,65 +444,65 @@ export class Cli {
         type: "string",
         describe: "The working directory to use."
       }
-    });
+    })
 
     const configFile = this.getConfigFile(
       yargs.argv.config,
       yargs.argv.dir
-    );
+    )
     const lockFile = path.join(
       path.dirname(configFile),
       path.basename(configFile, ".json") + ".lock"
-    );
+    )
 
     if (fs.existsSync(lockFile)) {
-      let lockProcess;
+      let lockProcess
 
       try {
         lockProcess = parseInt(
           JSON.parse(fs.readFileSync(lockFile, "utf8")).process
-        );
+        )
       } catch {
         console.error(
           colors.error(
             "Error: There was a problem reading the lock file."
           )
-        );
+        )
       }
 
       if (lockProcess) try {
-        fs.unlinkSync(lockFile);
+        fs.unlinkSync(lockFile)
 
-        process.kill(lockProcess);
+        process.kill(lockProcess)
 
-        console.log(colors.green("Closed the running server."));
+        console.log(colors.green("Closed the running server."))
       } catch (e) {
-        console.error(e);
-        console.log(colors.error("No running servers to close."));
+        console.error(e)
+        console.log(colors.error("No running servers to close."))
       }
     } else
-      console.log(colors.error("Error: Could not find any lock file."));
+      console.log(colors.error("Error: Could not find any lock file."))
   }
 
   /**
    * Create an app key for server.
    */
   getRandomString(bytes: number): string {
-    return crypto.randomBytes(bytes).toString("hex");
+    return crypto.randomBytes(bytes).toString("hex")
   }
 
   /**
    * Create an api key for the HTTP API.
    */
   createApiKey(): string {
-    return this.getRandomString(16);
+    return this.getRandomString(16)
   }
 
   /**
    * Create an api key for the HTTP API.
    */
   createAppId(): string {
-    return this.getRandomString(8);
+    return this.getRandomString(8)
   }
 
   /**
@@ -519,42 +519,42 @@ export class Cli {
         type: "string",
         describe: "The working directory to use."
       }
-    });
+    })
 
     const options = this.readConfigFile(
       this.getConfigFile(yargs.argv.config, yargs.argv.dir)
-    );
-    const appId = yargs.argv._[1] || this.createAppId();
-    options.clients = options.clients || [];
+    )
+    const appId = yargs.argv._[1] || this.createAppId()
+    options.clients = options.clients || []
 
     if (appId) {
-      let index = null;
+      let index = null
       let client = options.clients.find((client, i) => {
-        index = i;
-        return client.appId == appId;
-      });
+        index = i
+        return client.appId == appId
+      })
 
       if (client) {
-        client.key = this.createApiKey();
+        client.key = this.createApiKey()
 
-        options.clients[index] = client;
+        options.clients[index] = client
 
-        console.log(colors.green("API Client updated!"));
+        console.log(colors.green("API Client updated!"))
       } else {
         client = {
           appId: appId,
           key: this.createApiKey()
-        };
+        }
 
-        options.clients.push(client);
+        options.clients.push(client)
 
-        console.log(colors.green("API Client added!"));
+        console.log(colors.green("API Client added!"))
       }
 
-      console.log(colors.magenta("appId: " + client.appId));
-      console.log(colors.magenta("key: " + client.key));
+      console.log(colors.magenta("appId: " + client.appId))
+      console.log(colors.magenta("key: " + client.key))
 
-      this.saveConfig(options);
+      this.saveConfig(options)
     }
   }
 
@@ -572,27 +572,27 @@ export class Cli {
         type: "string",
         describe: "The working directory to use."
       }
-    });
+    })
 
     const options = this.readConfigFile(
       this.getConfigFile(yargs.argv.config, yargs.argv.dir)
-    );
-    const appId = yargs.argv._[1] || null;
-    options.clients = options.clients || [];
+    )
+    const appId = yargs.argv._[1] || null
+    options.clients = options.clients || []
 
-    let index = null;
+    let index = null
 
     const client = options.clients.find((client, i) => {
-      index = i;
-      return client.appId == appId;
-    });
+      index = i
+      return client.appId == appId
+    })
 
     if (index >= 0)
-      options.clients.splice(index, 1);
+      options.clients.splice(index, 1)
 
-    console.log(colors.green("Client removed: " + appId));
+    console.log(colors.green("Client removed: " + appId))
 
-    this.saveConfig(options);
+    this.saveConfig(options)
   }
 
   /**
@@ -602,30 +602,30 @@ export class Cli {
     const filePath = path.join(
       dir || process.cwd(),
       file || "fixed-laravel-echo-server.json"
-    );
+    )
 
     return path.isAbsolute(filePath)
       ? filePath
-      : path.join(process.cwd(), filePath);
+      : path.join(process.cwd(), filePath)
   }
 
   /**
    * Tries to read a config file
    */
   readConfigFile(file: string): any {
-    let data = {};
+    let data = {}
 
     try {
-      data = JSON.parse(fs.readFileSync(file, "utf8"));
+      data = JSON.parse(fs.readFileSync(file, "utf8"))
     } catch {
       console.error(
         colors.error(
           "Error: There was a problem reading the config file."
         )
-      );
-      process.exit();
+      )
+      process.exit()
     }
 
-    return this.resolveEnvFileOptions(data);
+    return this.resolveEnvFileOptions(data)
   }
 }
