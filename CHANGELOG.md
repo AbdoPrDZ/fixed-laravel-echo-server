@@ -118,3 +118,5 @@ npm install -g laravel-echo-server
 
 - Replace 'OK' response message to json response.
 - Clean the code.
+- Fix url query parameters
+- Fix getChannel, getChannels functions
