@@ -165,12 +165,12 @@ export class Server {
    * @param  {any} req
    * @return {string|boolean}
    */
-  getAuthKey(req: any): (string | string[] | boolean) {
+    getAuthKey(req: any): (string | string[] | boolean) {
     if (req.headers.authorization)
       return req.headers.authorization.replace('Bearer ', '')
 
-    if (url.parse(req.url, true).query.auth_key)
-      return url.parse(req.url, true).query.auth_key
+    if (req.query.auth_key)
+      return req.query.auth_key
 
     return false
   }
