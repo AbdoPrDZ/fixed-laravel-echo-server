@@ -120,3 +120,8 @@ npm install -g laravel-echo-server
 - Clean the code.
 - Fix url query parameters
 - Fix getChannel, getChannels functions
+
+# 0.1.2
+
+- Fix (reading 'readFileSync') error.
+- Upgrade some packages versions.
