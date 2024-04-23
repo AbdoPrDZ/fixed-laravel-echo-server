@@ -56,7 +56,8 @@ export class EchoServer {
       configSource: null,
       databaseURL: null,
       channel: 'private-firebase_admin',
-    }
+    },
+    echoSever: null,
   }
 
   /**
@@ -109,6 +110,7 @@ export class EchoServer {
   run(options: any, yargs: any): Promise<EchoServer> {
     return new Promise<EchoServer>((resolve, reject) => {
       this.options = Object.assign(this.defaultOptions, options)
+      this.options.echoServer = this
       this.startup()
       this.server = new Server(this.options)
 
@@ -242,7 +244,8 @@ export class EchoServer {
    * @returns {any}
    */
   find(socket_id: string): any {
-    return this.server.io.sockets.connected[socket_id]
+    const socket = this.server.io.sockets.sockets.get(socket_id)
+    return socket.connected ? socket : null
   }
 
   /**
@@ -253,8 +256,11 @@ export class EchoServer {
    * @returns {boolean}
    */
   broadcast(channel: string, message: any): boolean {
-    if (message.socket && this.find(message.socket))
-      return this.toOthers(this.find(message.socket), channel, message)
+    message.socket = message.socket ? this.find(message.socket) : null
+    console.log('broadcast.message', message);
+
+    if (message.socket)
+      return this.toOthers(message.socket, channel, message)
     else
       return this.toAll(channel, message)
   }

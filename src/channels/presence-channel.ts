@@ -52,19 +52,15 @@ export class PresenceChannel {
    */
   removeInactive(channel: string, members: any[], member: any): Promise<any> {
     return new Promise((resolve, reject) => {
-      this.io
-        .of("/")
-        .in(channel)
-        .clients((error, clients) => {
-          members = members || []
-          members = members.filter((member) => {
-            return clients.indexOf(member.socketId) >= 0
-          })
+      this.io.of("/").in(channel).fetchSockets().then((clients) => {
 
-          this.db.set(channel + ":members", members)
+        members = members || []
+        members = members.filter((member) => clients.find((client) => client.id == member.socketId) != null)
 
-          resolve(members)
-        })
+        this.db.set(channel + ":members", members)
+
+        resolve(members)
+      })
     })
   }
 
@@ -73,6 +69,7 @@ export class PresenceChannel {
    * first instance of their presence.
    */
   join(socket: any, channel: string, member: any) {
+    Log.info(`${socket.id} - ${member} - Joining to presence channel ${channel}`, true)
     if (!member) {
       if (this.options.devMode)
         Log.error(
@@ -139,22 +136,31 @@ export class PresenceChannel {
    * On join event handler.
    */
   onJoin(socket: any, channel: string, member: any): void {
-    this.io.sockets.connected[socket.id].broadcast
-      .to(channel)
-      .emit("presence:joining", channel, member)
+    this.options.echoServer.broadcast(channel, {
+      socket: socket.id,
+      event: "presence:joining",
+      data: member,
+    })
   }
 
   /**
    * On leave emitter.
    */
   onLeave(channel: string, member: any): void {
-    this.io.to(channel).emit("presence:leaving", channel, member)
+    this.options.echoServer.broadcast(channel, {
+      event: "presence:leaving",
+      data: member,
+    })
   }
 
   /**
    * On subscribed event emitter.
    */
   onSubscribed(socket: any, channel: string, members: any[]) {
-    this.io.to(socket.id).emit("presence:subscribed", channel, members)
+    this.options.echoServer.broadcast(channel, {
+      socket: socket.id,
+      event: "presence:subscribed",
+      data: members,
+    })
   }
 }

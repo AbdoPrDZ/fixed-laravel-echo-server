@@ -57,14 +57,15 @@ export class Channel {
       data = data
     }
 
-    if (data.event && data.channel)
-      if (this.isClientEvent(data.event) &&
+    if (data.event && data.channel &&
+        this.isClientEvent(data.event) &&
         this.isPrivate(data.channel) &&
-        this.isInChannel(socket, data.channel)) {
-        this.io.sockets.connected[socket.id]
-          .broadcast.to(data.channel)
-          .emit(data.event, data.channel, data.data)
-      }
+        this.isInChannel(socket, data.channel))
+      this.options.echoServer.broadcast(data.channel, {
+        socket: socket.id,
+        event: data.event,
+        data: data.data
+      })
   }
 
   /**
@@ -101,6 +102,7 @@ export class Channel {
    */
   joinPrivate(socket: any, data: any): void {
     this.private.authenticate(socket, data).then(res => {
+
       socket.join(data.channel)
 
       if (this.isPresence(data.channel)) {
@@ -119,7 +121,7 @@ export class Channel {
         Log.error(error.reason)
 
       this.io.sockets.to(socket.id)
-        .emit('subscription_error', data.channel, error.status)
+        .emit('channel_subscribe_error', data.channel, error.status)
     })
   }
 
@@ -158,4 +160,5 @@ export class Channel {
   isInChannel(socket: any, channel: string): boolean {
     return !!socket.rooms[channel]
   }
+
 }
