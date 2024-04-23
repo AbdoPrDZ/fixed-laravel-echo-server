@@ -125,3 +125,8 @@ npm install -g laravel-echo-server
 
 - Fix (reading 'readFileSync') error.
 - Upgrade some packages versions.
+
+# 0.1.2
+
+- Fix some errors in presence channel.
+- Fix some know errors.
