@@ -1,8 +1,7 @@
-import fs from 'fs'
+import * as fs from 'fs'
 const http = require('http')
 const https = require('https')
 const express = require('express')
-import url from 'url'
 const io = require('socket.io')
 import { Log } from './log'
 
