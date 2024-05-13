@@ -130,3 +130,7 @@ npm install -g laravel-echo-server
 
 - Fix some errors in presence channel.
 - Fix some know errors.
+
+# 0.1.3
+
+- remove log message
