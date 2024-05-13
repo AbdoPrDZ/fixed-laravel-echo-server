@@ -257,7 +257,6 @@ export class EchoServer {
    */
   broadcast(channel: string, message: any): boolean {
     message.socket = message.socket ? this.find(message.socket) : null
-    console.log('broadcast.message', message);
 
     if (message.socket)
       return this.toOthers(message.socket, channel, message)
