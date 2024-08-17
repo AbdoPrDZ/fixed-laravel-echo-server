@@ -134,3 +134,7 @@ npm install -g laravel-echo-server
 # 0.1.3
 
 - remove log message
+
+# 0.1.4
+
+- Fix some know errors.

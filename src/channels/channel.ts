@@ -115,7 +115,7 @@ export class Channel {
       }
 
       this.onJoin(socket, data.channel)
-      this.io.sockets.to(socket.id).emit('channel_subscribe_success', data.channel, res.channel_data?.user_info)
+      this.io.sockets.to(socket.id).emit('channel_subscribe_success', data.channel, res)
     }, error => {
       if (this.options.devMode)
         Log.error(error.reason)

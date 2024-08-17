@@ -57,7 +57,6 @@ export class EchoServer {
       databaseURL: null,
       channel: 'private-firebase_admin',
     },
-    echoSever: null,
   }
 
   /**
@@ -315,17 +314,19 @@ export class EchoServer {
   onConnected(socket: any): void {
     Log.warning(`Client ${socket.id} connected`, true)
 
-    if (this.options.clientConnectEndpoint)
+    if (this.options.clientConnectEndpoint) {
+      const url = path.join(this.options.authHost, this.options.clientConnectEndpoint)
       new Promise((resolve, reject) => {
-        axios.post(this.options.clientConnectEndpoint, {socket_id: socket.id}, {
+        axios.post(url, {socket_id: socket.id}, {
           headers: socket.handshake.auth ? socket.handshake.auth.headers : {},
         }).then((response) => {
           Log.info(`Client connect server request data:\n${JSON.stringify(response.data)}`, true)
           resolve(undefined)
         }).catch((error) => {
-          Log.error(`Client connect server request error\n${error}`, true)
+          Log.error(`Client connect server request error\nurl: ${url}\n${error}`, true)
         })
       })
+    }
   }
 
   /**
@@ -394,17 +395,19 @@ export class EchoServer {
     socket.on('disconnect', async (reason) => {
       Log.warning(`Client ${socket.id} disconnected`, true)
 
-      if (this.options.clientDisconnectEndpoint)
+      if (this.options.clientDisconnectEndpoint) {
+        const url = path.join(this.options.authHost, this.options.clientDisconnectEndpoint)
         new Promise((resolve, reject) => {
-          axios.post(this.options.clientDisconnectEndpoint, {socket_id: socket.id}, {
+          axios.post(url, {socket_id: socket.id}, {
             headers: socket.handshake.auth ? socket.handshake.auth.headers : {},
           }).then((response) => {
             Log.info(`Client disconnect server request data:\n${JSON.stringify(response.data)}`, true)
             resolve(undefined)
           }).catch((error) => {
-            Log.error(`Client disconnect server request error\n${error}`, true)
+            Log.error(`Client disconnect server request error\nurl: ${url}\n${error}`, true)
           })
         })
+      }
     })
   }
 }
