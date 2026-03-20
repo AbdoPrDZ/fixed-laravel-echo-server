@@ -379,9 +379,10 @@ export class EchoServer {
    */
   onDisconnecting(socket: any): void {
     socket.on('disconnecting', (reason) => {
-      Object.keys(socket.rooms).forEach(async room => {
-        if (room !== socket.id)
+      Array.from(socket.rooms).forEach(async room => {
+        if (typeof room === "string" && room !== socket.id) {
           this.channel.leave(socket, room, reason)
+        }
       })
     })
   }
