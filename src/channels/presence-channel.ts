@@ -157,10 +157,6 @@ export class PresenceChannel {
    * On subscribed event emitter.
    */
   onSubscribed(socket: any, channel: string, members: any[]) {
-    this.options.echoServer.broadcast(channel, {
-      socket: socket.id,
-      event: "presence:subscribed",
-      data: members,
-    })
+    this.io.to(socket.id).emit("presence:subscribed", channel, members)
   }
 }
